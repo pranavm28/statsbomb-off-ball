@@ -12,7 +12,11 @@
 # pandas is capped below 3.0: the code was written against the 2.x API, and
 # 2.3.x still ships wheels for current Python. numpy 2.x is fine -- checked for
 # the aliases numpy 2.0 removed, none are used.
-streamlit>=1.40
+# streamlit is capped below 1.50: the app calls use_container_width ~17 times,
+# which 1.50+ deprecates with removal announced. Staying on the API generation
+# the app was written for matters more than being current, since this gets
+# demoed live. Pure-Python package, so the cap costs nothing at install time.
+streamlit>=1.40,<1.50
 pandas>=2.2,<3
 numpy>=1.26,<3
 pyarrow>=17

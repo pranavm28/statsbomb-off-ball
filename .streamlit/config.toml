@@ -10,5 +10,6 @@ font = "sans serif"
 gatherUsageStats = false
 
 [server]
-# open the app in the default browser automatically on launch
-headless = false
+# headless is intentionally left unset. Setting it false makes Streamlit try to
+# open a browser on the machine it runs on, which is wrong on a deploy host and
+# only ever helped locally. `streamlit run` opens a browser locally anyway.
