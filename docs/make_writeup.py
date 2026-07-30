@@ -52,15 +52,25 @@ def gather() -> dict:
     val = json.load(open(ROOT / "outputs" / "value_report.json"))
 
     u = runs[(runs["usable"] == 1) & (runs["is_run"] == 1)]
+
+    # the run used as the worked example, scored by both fits of Model B
+    mb = runs[(runs["match_id"] == 3803000) & (runs["minute"] == 73)
+              & (runs["runner"].str.contains("Mbapp", na=False)) & (runs["usable"] == 1)].iloc[0]
+
     return dict(
         matches=runs["match_id"].nunique(), receipts=len(runs), usable=len(u),
-        usable_pct=100 * len(u) / len(runs), players=len(pm),
-        minutes=mins["minutes"].sum(), top=pm.nlargest(10, "RunValue90"),
+        usable_pct=100 * len(u) / len(runs),
+        gate_pct=100 * (runs["usable"] == 1).mean(),
+        players=len(pm), minutes=mins["minutes"].sum(), top=pm.nlargest(10, "RunValue90"),
         abl=abl, tiers=abl["tiers"], gain360=abl["total_gain_from_360"],
         n_states=abl["n_rows"], base_rate=abl["base_rate"],
         v_brier=abl["tiers"][-1]["brier"], naive_lift=val["auc_lift"],
         ctx_auc=rep["metrics_context"]["auc"], run_auc=rep["metrics_plus_run"]["auc"],
-        run_lift=rep["auc_lift"],
+        run_lift=rep["auc_lift"], run_rows=rep["metrics_context"]["n"],
+        run_base=rep["metrics_context"]["base_rate"],
+        run_brier=rep["metrics_plus_run"]["brier"],
+        mb_ctx=float(mb["rv_context"]), mb_full=float(mb["run_value"]),
+        mb_add=float(mb["run_value_added"]),
     )
 
 
@@ -95,7 +105,7 @@ def flow_png(matches: int) -> Path:
     steps = [("1. Data", ["StatsBomb 360:", "events + freeze-frames", f"{matches} matches"]),
              ("2. Reconstruct", ["Pair the release and", "receipt frames to", "recover the run"]),
              ("3. Describe", ["Ball, runner and", "defensive shape", "at both instants"]),
-             ("4. Model", ["P(shot within 5s),", "folds grouped", "by match"]),
+             ("4. Model", ["P(progression),", "folds grouped", "by match"]),
              ("5. Aggregate", ["Run Value per 90", "for every player", "over 600 mins"])]
 
     # Kept deliberately wide and short: it renders full page-width, so a tall
@@ -174,26 +184,53 @@ def content(d: dict) -> list:
 
         ("lede", f"**Headline.** Event data records the pass; it never records the run that made "
                  f"the pass possible. Using 360 freeze-frames I reconstruct {d['usable']:,} "
-                 f"off-ball runs and value them by how much they raise the chance of a shot "
-                 f"within five seconds. Seeing the players — not just the ball — is worth "
+                 f"off-ball runs and value each one by how much the *manner* of the movement raises "
+                 f"the chance the possession progresses. Seeing the players — not just the ball — is worth "
                  f"+{d['gain360']:.4f} AUC over event-only features on identical rows and folds. "
                  f"The applied finding is a profile, not just a ranking: **Victor Boniface** ranks "
                  f"second per 90 on a fifth of Mbappé's minutes, while receiving in the most "
                  f"crowded space of anyone near the top."),
 
         ("h2", "1", "What \"possession value\" means here"),
-        ("p", f"**Unit:** the game state at one instant, attached to one player. **Target:** a "
-              f"binary label — did the possession produce a shot within the next 5 seconds. "
-              f"**Model:** V(state) = P(shot ≤ 5s | ball location, that player's location, the "
-              f"defensive structure around him), fitted as a supervised classifier on "
-              f"{d['n_states']:,} states with a base rate of {100 * d['base_rate']:.1f}%."),
-        ("p", "This is a state-value function in the same family as xT and VAEP: it scores a "
-              "*state* of the possession, and the value of a move is the change in that score "
-              "between two states. The difference is what defines the state. xT keys value to "
+        ("p", "**Possession value** here is a number attached to a *state* of the possession — "
+              "not to a player and not to an action, but to a moment: the ball is here, this "
+              "player is there, the defenders are arranged like this. The value of a move is then "
+              "the *change* in that number between two states. That logic is shared with xT and "
+              "VAEP; what differs is what goes into the state."),
+        ("p", "**Two models do two different jobs.** They are kept separate on purpose, and "
+              "knowing which is which is needed to read every number below."),
+        ("table", ["", "Model A — state value", "Model B — run value"], [
+            ["Question it answers",
+             "Does seeing the *players*, not just the ball, make a game state more predictable "
+             "at all?",
+             "How much did *this* player's movement add, over and above where his run started "
+             "and finished?"],
+            ["One row is", "one game state: a player and the ball at one instant",
+             "one reconstructed off-ball run"],
+            ["Rows", f"{d['n_states']:,}", f"{d['run_rows']:,}"],
+            ["Target — the 0/1 label it learns from",
+             "a shot within the next **5 seconds**",
+             "**progression**: a shot *or* a final-third entry within the next **5 actions** of "
+             "the possession"],
+            ["How often the label is 1", f"{100 * d['base_rate']:.1f}%", f"{100 * d['run_base']:.1f}%"],
+            ["What it is used for in this document",
+             "the 360 ablation in §6 — does 360 earn its keep",
+             "**Run Value per 90** — the metric and ranking in §4"],
+        ], [0, 0, 0]),
+        ("p", f"**Why two targets instead of one?** \"Shot within five seconds\" is right for the "
+              f"first question: it is close to what football cares about, and across "
+              f"{d['n_states']:,} states there is enough data to learn an event that rare "
+              f"({100 * d['base_rate']:.1f}%). It is wrong for the second. At the level of one "
+              f"run, shots are too rare to tell a good run from a lucky one, so Model B is judged "
+              f"on progression, which happens {100 * d['run_base']:.1f}% of the time. A run that "
+              f"drags the ball into the final third has done its job whether or not a shot "
+              f"arrives three passes later."),
+        ("p", "**Why a learned state-value function rather than a grid xT?** xT keys value to "
               "*where the ball is*; this keys it to *where the players are*. Two identical ball "
-              "positions with different defensive shapes are one cell in xT and two states here. "
-              "An xT surface is still used as a context feature, so the model knows the "
-              "geographic prior it adds to."),
+              "positions with different defensive shapes are one cell in xT and two distinct "
+              "states here. An xT surface is still used, as a context *feature*, so the model "
+              "knows the geographic prior it is adding to — the threat surface is an input, never "
+              "the thing being predicted."),
 
         ("h2", "2", "How it works"),
         ("img_full", str(FIGS / "fig_flow.png")),
@@ -203,8 +240,13 @@ def content(d: dict) -> list:
               f"ball was struck — but frames are anonymous, so the run's *origin* must be "
               f"inferred: the nearest teammate in the release frame, accepted only if the implied "
               f"sprint is physically possible (≤ {config.MAX_RUN_SPEED} m/s over the pass "
-              f"duration). That gate is why {d['usable_pct']:.0f}% of {d['receipts']:,} receipts "
-              f"survive, and it is the biggest assumption in the project."),
+              f"duration). This origin inference is the biggest assumption in the project."),
+        ("p", f"**Two filters, in order.** Of {d['receipts']:,} receipts examined, "
+              f"{d['gate_pct']:.0f}% pass the plausibility gates — an unambiguous nearest "
+              f"teammate and a reachable distance. Of those, the ones where the player actually "
+              f"*moved* (≥ {config.MIN_RUN_DISTANCE} m) are runs: "
+              f"{d['usable']:,}, or {d['usable_pct']:.0f}% of all receipts. The rest are players "
+              f"receiving roughly where they already stood, which is a reception, not a run."),
 
         ("h2", "3", "Scope, and why"),
         ("p", f"Four full competition-seasons with 360 coverage — La Liga 2020/21, Ligue 1 "
@@ -216,14 +258,25 @@ def content(d: dict) -> list:
               f"three clubs and the ranking is within-sample, not cross-league."),
 
         ("h2", "4", "The metric, and the ranking"),
-        ("p", f"**Run Value per 90.** One number per player, built in four steps: (i) for each "
-              f"run, take the out-of-fold gain in predicted shot probability when the model can "
-              f"see *how* the player moved, on top of a context model that already knows where "
-              f"the ball and the receipt were; (ii) keep only runs received in the final third, "
-              f"because outside it \"predictive\" and \"valuable\" come apart — a centre-back "
-              f"dropping into space is reliably informative and is not creating anything; (iii) "
-              f"sum per player; (iv) divide by 90s played, with a {config.MIN_MINUTES}-minute "
-              f"floor. That leaves {d['players']} qualifying players."),
+        ("p", "**Run Value per 90** is built from **Model B**, so the quantity underneath it is "
+              "the probability of *progression*, not of a shot. Four steps:"),
+        ("bullets", [
+            "**(i) Fit Model B twice on identical rows and folds.** Once on CONTEXT only — "
+            "`origin_x/y`, `receipt_x/y`, threat at both ends, pass length: *where* the run "
+            "happened. Then again on CONTEXT + RUN — distance, forward and lateral components, "
+            "speed, separation gained, space at receipt, defenders broken, in-behind, "
+            "encirclement and block geometry: *how* he moved.",
+            "**(ii) Subtract, per run.** `run_value_added = P(progress | where + how) − "
+            "P(progress | where)`. Both are out-of-fold predictions, meaning each run is scored "
+            "by a model that never saw that run's match in training. This difference is the "
+            "run's credit.",
+            f"**(iii) Keep only runs received in the final third.** Outside it, \"predictive\" and "
+            f"\"valuable\" come apart: a centre-back dropping into space reliably predicts "
+            f"retained possession and creates nothing. Tested against the alternatives — the "
+            f"attacking half moved the clearest false positive from 10th to 15th, the final third "
+            f"moves him to 34th.",
+            f"**(iv) Sum per player, divide by 90s played**, with a {config.MIN_MINUTES}-minute "
+            f"floor. That leaves {d['players']} qualifying players."]),
         ("p", "**It is an information gain, not a probability.** It answers \"how much of the "
               "outcome is explained by the manner of the movement rather than its geography\", so "
               "it does not sum to goals. Two scouts watch the same possession, one seeing only "
@@ -237,31 +290,45 @@ def content(d: dict) -> list:
 
         ("h2", "5", "One run, in detail"),
         ("figure_two", str(FIGS / "fig_mbappe_run.png"), [
-            "Ghosted dots are where everyone stood when the pass was struck; solid dots where "
-            "they stood when it arrived. Gold is the ball, green dotted is the run.",
+            "Ghosted dots = positions at pass release; solid = at arrival. Gold is the ball, "
+            "green dotted is the run.",
             "Mbappé starts **outside the box** at the moment of release and arrives on the "
             "penalty spot 16.2 m later, with **four defenders** around him — encirclement 0.63, "
             "i.e. almost no clear side. The possession produces **0.70 xG within five seconds**.",
-            "This is what event data cannot see. A model given only the ball's start and end sees "
-            "a 16 m pass into a crowd; a model given the freeze-frames sees a striker "
-            "manufacturing the one gap that made it a chance."]),
+            f"**Scored, step by step.** From where the run started and finished alone, Model B put "
+            f"the chance of progression at **{d['mb_ctx']:.3f}**. Once it could also see *how* he "
+            f"moved — 16 m forward, in behind, into encirclement 0.63 — it rose to "
+            f"**{d['mb_full']:.3f}**. The difference, **{d['mb_add']:+.3f}**, is this run's credit. "
+            f"The possession did progress.",
+            "That gap is the whole idea: without the frames this is just a 16 m pass into a "
+            "crowd."]),
 
         ("h2", "6", "Validation"),
         ("p", "**Nested structure.** Events sit inside possessions inside matches, so a random "
-              "split leaks — two events from one possession are near-duplicates. All folds are "
-              "`GroupKFold` on `match_id`; every number quoted is out-of-fold."),
-        ("p", "**Does 360 earn its keep?** The honest test is not \"with vs without 360\" — the "
-              "runner's own position *is* a 360 feature, so a naive baseline smuggles it in. "
-              "Instead, four nested tiers on identical rows and folds:"),
+              "split leaks — two events from one possession are near-duplicates and would land on "
+              "both sides of the split. All folds are `GroupKFold` on `match_id`, so a whole match "
+              "sits either in training or in test, never both. Every number quoted is out-of-fold: "
+              "predicted by a model that never saw that match."),
+        ("p", "**Does 360 earn its keep? (Model A.)** The honest test is not \"with vs without "
+              "360\" — the runner's own position *is* a 360 feature, so a naive baseline smuggles "
+              "it in. That mistake is worth "
+              f"+{d['naive_lift']:.4f} AUC of flattery. Instead, four nested tiers on identical "
+              f"rows and folds:"),
         ("table", ["Feature tier", "n", "AUC", "Brier", "Gain", "What it adds"], abl_rows,
          [0, 1, 1, 1, 1, 0]),
         ("p", f"Tier 1→3 is the real 360 contribution: **+{d['gain360']:.4f} AUC**. Tier 4 is "
               f"**+{t[3]['gain_vs_previous']:.4f}** — a null result, reported rather than dropped. "
-              f"Separately, the run features add **+{d['run_lift']:.4f} AUC** over context alone "
-              f"({d['ctx_auc']:.4f} → {d['run_auc']:.4f}) on the progression target. "
-              f"**Calibration:** out-of-fold Brier {d['v_brier']:.4f} against a "
-              f"{100 * d['base_rate']:.1f}% base rate, and predicted vs observed track closely "
-              f"across all ten deciles (figures in the repo)."),
+              f"Read the *increments*, not the levels: an AUC of {t[0]['auc']:.2f} on tier 1 looks "
+              f"impressive but the target is easy, since a ball already in the box implies a shot "
+              f"soon. Only the incremental columns say anything."),
+        ("p", f"**Does the movement earn its keep? (Model B.)** The same design, one level up: "
+              f"CONTEXT alone reaches AUC {d['ctx_auc']:.4f}; adding the RUN features reaches "
+              f"{d['run_auc']:.4f}, a lift of **+{d['run_lift']:.4f}** on "
+              f"{d['run_rows']:,} runs. That lift is what Run Value is a per-run decomposition of. "
+              f"**Calibration:** out-of-fold Brier {d['run_brier']:.4f} for Model B against a "
+              f"{100 * d['run_base']:.1f}% base rate, and {d['v_brier']:.4f} for Model A against "
+              f"{100 * d['base_rate']:.1f}%; predicted versus observed track closely across all "
+              f"ten deciles for both (figures in the repo)."),
 
         ("h2", "7", "Say it two ways"),
         ("cards", [
@@ -312,16 +379,14 @@ def content(d: dict) -> list:
                 "*how many*.",
                 "**Final-third restriction** to stop rewarding informative-but-harmless movement."]),
             ("Rejected, and why", [
-                "**socceraction / VAEP off the shelf.** The point was to define the target myself; "
-                "using it as a black box is the failure mode named in the brief.",
-                "**Defender counts within 10 m.** Collinear with the geometry features, no "
-                "incremental lift.",
+                "**socceraction / VAEP off the shelf.** The point was defining the target myself; a "
+                "black box is the failure mode the brief names.",
+                "**Defender counts within 10 m.** Collinear with the geometry, no lift.",
                 f"**Compactness tier.** +{t[3]['gain_vs_previous']:.4f} AUC — kept in the report "
                 f"as a null, not in the metric.",
                 "**Plain ΔV as the player metric.** It is joint with the pass; corr(ΔV, ball "
                 "forward) exceeded corr(ΔV, run forward), so it partly ranked passers.",
-                "**Pitch control / velocity models.** Freeze-frames have positions but no "
-                "velocities.",
+                "**Pitch control / velocity models.** Freeze-frames have positions, no velocities.",
                 "**World Cup 2022.** Too few matches per player for a rate metric."])]),
 
         ("h2", "9", "What breaks it"),
@@ -335,14 +400,13 @@ def content(d: dict) -> list:
               "isolating his contribution instead of inferring it from a model comparison."),
         ("bullets", [
             "**Who it treats unfairly.** Target men and deep-lying creators. It rewards movement "
-            "that raises shot probability quickly, so a striker who occupies two centre-backs to "
+            "that moves *this* possession forward quickly, so a striker who occupies two centre-backs to "
             "open space for someone else scores nothing for it. Fixing that needs off-ball value "
             "attributed to the *space created for teammates*, not just the receiving player.",
             f"**Small samples.** The {config.MIN_MINUTES}-minute floor is ~6.7 × 90, so {trincao} "
             f"ranks 4th on {trincao_90s:.1f} × 90. Bootstrap intervals per player are the fix; "
             f"they are not in this version.",
-            "**Three clubs.** Open-data 360 is club-focused, so this is within-sample. No "
-            "cross-league claim is made.",
+            "**Three clubs.** Open-data 360 is club-focused, so this is within-sample.",
             f"**Inferred origins.** {100 - d['usable_pct']:.0f}% of receipts are discarded, and "
             f"the kept ones rest on a nearest-teammate assumption that will occasionally pick the "
             f"wrong player in a crowded box."]),
@@ -379,33 +443,34 @@ CSS = """
 @page { size: A4; margin: 12mm 12mm 10mm 12mm; }
 * { box-sizing: border-box; }
 body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-       font-size: 8.4pt; line-height: 1.38; color: #15171a; margin: 0; }
+       font-size: 8.1pt; line-height: 1.34; color: #15171a; margin: 0; }
 h1 { font-size: 16.5pt; line-height: 1.1; margin: 0 0 1.4mm 0; letter-spacing: -0.4px; }
-h2 { font-size: 9.6pt; margin: 3.6mm 0 1.3mm 0; color: #5b4fd6; }
+h2 { font-size: 9.3pt; margin: 3.0mm 0 1.1mm 0; color: #5b4fd6; }
 h2 .n { color: #b9bcc6; margin-right: 4px; }
 h3 { font-size: 8.7pt; margin: 0 0 1mm 0; color: #5b4fd6; }
-p { margin: 0 0 1.7mm 0; }
+p { margin: 0 0 1.5mm 0; }
 b, strong { font-weight: 600; }
 .sub { color: #5f6672; font-size: 8.7pt; margin: 0 0 1.2mm 0; }
 .byline { color: #5f6672; font-size: 7.6pt; border-top: 1px solid #d8dbe2;
           padding-top: 1.2mm; margin-top: 1.8mm; }
 .lede { background: #f6f6fb; border-left: 2.6px solid #5b4fd6;
         padding: 2.2mm 2.8mm; margin: 2.2mm 0 0.6mm 0; font-size: 8.6pt; }
-.tbl { width: 100%; border-collapse: collapse; font-size: 7.6pt; margin: 1.1mm 0 1.5mm 0;
+.tbl { width: 100%; border-collapse: collapse; font-size: 7.3pt; margin: 1.1mm 0 1.5mm 0;
        page-break-inside: avoid; }
 .tbl th { text-align: left; font-weight: 600; font-size: 7pt; color: #3f4550;
           border-bottom: 1px solid #9aa0ad; padding: 0.8mm 1.2mm; line-height: 1.2; }
 .tbl td { padding: 0.78mm 1.2mm; border-bottom: 0.5px solid #e6e8ee; }
 .tbl td.r, .tbl th.r { text-align: right; font-variant-numeric: tabular-nums; }
 .tbl tbody tr:first-child td { background: #f8f8fc; }
-.two { display: grid; grid-template-columns: 1fr 1fr; gap: 3.6mm; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 3.2mm; }
+.figrow { display: grid; grid-template-columns: 0.92fr 1.08fr; gap: 3.2mm; }
 .imgfull { width: 100%; display: block; margin: 0.8mm 0 1.8mm 0; }
 .fig img { width: 100%; border-radius: 4px; display: block; }
 .cap { font-size: 7.1pt; color: #5f6672; margin-top: 0.9mm; }
 .card { border: 1px solid #d8dbe2; border-radius: 4px; padding: 2.2mm 2.6mm;
         page-break-inside: avoid; }
 ul { margin: 0 0 1.5mm 0; padding-left: 3.8mm; }
-li { margin-bottom: 0.6mm; }
+li { margin-bottom: 0.45mm; }
 .foot { border-top: 1px solid #d8dbe2; margin-top: 2.6mm; padding-top: 1.2mm;
         font-size: 6.9pt; color: #5f6672; }
 code { font-family: "SF Mono", Menlo, monospace; font-size: 7.7pt; background: #f3f4f8;
@@ -455,7 +520,7 @@ def render_html(blocks: list) -> str:
             h.append(f'<img class="imgfull" src="data:image/png;base64,{b64(blk[1])}">')
         elif k == "figure_two":
             paras = "".join(f"<p>{h_inline(p)}</p>" for p in blk[2])
-            h.append(f'<div class="two"><div class="fig">'
+            h.append(f'<div class="figrow"><div class="fig">'
                      f'<img src="data:image/png;base64,{b64(blk[1])}"></div>'
                      f"<div>{paras}</div></div>")
         elif k == "table":
@@ -626,8 +691,11 @@ def main() -> None:
     flow_png(d["matches"])
     blocks = content(d)
 
+    # The HTML is only an intermediate for Chrome's PDF renderer, so it goes to a
+    # temp directory rather than cluttering docs/ or the repo.
+    import tempfile
     html = render_html(blocks)
-    hp = DOCS / "Off_Ball_Run_Value__Write_Up.html"
+    hp = Path(tempfile.mkdtemp()) / "writeup.html"
     hp.write_text(html, encoding="utf-8")
 
     pdf = DOCS / "Off_Ball_Run_Value__Write_Up.pdf"
@@ -637,7 +705,7 @@ def main() -> None:
                        check=True, capture_output=True)
         print(f"wrote {pdf.name}   ({pdf.stat().st_size / 1e6:.2f} MB)")
     else:
-        print("Chrome not found -- PDF skipped, HTML written")
+        print("Chrome not found -- PDF skipped")
 
     docx = DOCS / "Off_Ball_Run_Value__Write_Up.docx"
     render_docx(blocks, docx)
