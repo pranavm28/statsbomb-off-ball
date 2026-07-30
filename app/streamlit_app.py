@@ -139,7 +139,10 @@ elif page == "Player profile":
                           format_func=lambda x: {"in_behind": "In behind",
                                                  "threat": "Threat",
                                                  "game_state": "Game state"}[x])
-        st.pyplot(runs_page.run_map(rp, colour, title=who), use_container_width=True)
+        # emphasise=True: a high-volume runner's ordinary runs are drawn faint and
+        # underneath, so the in-behind / high-threat ones actually read
+        st.pyplot(runs_page.run_map(rp, colour, title=who, emphasise=True),
+                  use_container_width=True)
 
     st.markdown("#### His runs, by situation")
     by = st.radio("Split by", ["game_state", "phase", "zone"], horizontal=True,

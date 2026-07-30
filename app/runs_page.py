@@ -14,33 +14,49 @@ import config
 from src import viz
 
 
-def run_map(runs_p: pd.DataFrame, colour_by="in_behind", title=None):
+def run_map(runs_p: pd.DataFrame, colour_by="in_behind", title=None, emphasise=False):
     """
     A player's reconstructed runs. Runs are OFF-BALL movement, so they follow the
     house CARRY convention -- dotted, with a dot at the receiving end -- not the
     comet used for passes. The distinction is deliberate: a comet would imply the
     player had the ball.
+
+    emphasise=True pushes the bulk category into the background: lower alpha,
+    lower zorder, thinner line, smaller dot. A high-volume player has hundreds of
+    ordinary runs and a handful of interesting ones, and at equal weight the
+    ordinary ones bury the rest. Only the categories flagged as focus keep full
+    weight, and they are drawn last so they sit on top.
     """
     fig, ax, pitch = viz.new_pitch(figsize=(9, 6))
-    items = []
+
+    # (label, rows, colour, is_focus)
     if colour_by == "in_behind":
-        groups = [("In behind the line", runs_p[runs_p["in_behind"] == 1], viz.PROG_PASS),
-                  ("In front of the line", runs_p[runs_p["in_behind"] == 0], viz.PASS_SUCC)]
+        groups = [("In behind the line", runs_p[runs_p["in_behind"] == 1], viz.PROG_PASS, True),
+                  ("In front of the line", runs_p[runs_p["in_behind"] == 0], viz.PASS_SUCC, False)]
     elif colour_by == "game_state":
-        groups = [("Trailing", runs_p[runs_p["game_state"] == "Trailing"], viz.PROG_CARRY),
-                  ("Level", runs_p[runs_p["game_state"] == "Level"], viz.AMBER),
-                  ("Leading", runs_p[runs_p["game_state"] == "Leading"], viz.PROG_PASS)]
+        # no category here is "the interesting one", so nothing is demoted
+        groups = [("Trailing", runs_p[runs_p["game_state"] == "Trailing"], viz.PROG_CARRY, True),
+                  ("Level", runs_p[runs_p["game_state"] == "Level"], viz.AMBER, True),
+                  ("Leading", runs_p[runs_p["game_state"] == "Leading"], viz.PROG_PASS, True)]
     else:  # threat generated
         hi = runs_p[runs_p["run_xt"] > runs_p["run_xt"].quantile(0.75)]
         lo = runs_p[runs_p["run_xt"] <= runs_p["run_xt"].quantile(0.75)]
-        groups = [("Low threat", lo, viz.PASS_FAIL), ("High threat", hi, viz.PROG_PASS)]
+        groups = [("Low threat", lo, viz.PASS_FAIL, False),
+                  ("High threat", hi, viz.PROG_PASS, True)]
 
-    for label, g, col in groups:
+    # background first, focus last, so the runs worth reading sit on top
+    for label, g, col, focus in sorted(groups, key=lambda t: t[3]):
         if not len(g):
             continue
-        viz.dotted(pitch, ax, g["origin_x"], g["origin_y"],
-                   g["receipt_x"], g["receipt_y"], col, lw=2.1, dot=42)
-        items.append((f"{label}: {len(g)}", col, "dotted"))
+        if emphasise and not focus:
+            viz.dotted(pitch, ax, g["origin_x"], g["origin_y"], g["receipt_x"], g["receipt_y"],
+                       col, lw=1.3, alpha=0.22, z=3, dot=13)
+        else:
+            viz.dotted(pitch, ax, g["origin_x"], g["origin_y"], g["receipt_x"], g["receipt_y"],
+                       col, lw=2.1, alpha=0.95, z=6, dot=42)
+
+    # legend keeps the declared order, which reads better than the draw order
+    items = [(f"{label}: {len(g)}", col, "dotted") for label, g, col, _ in groups if len(g)]
     viz.legend(ax, items)
     if title:
         viz.title(fig, title, "runs shown from where the player started to where he received")
