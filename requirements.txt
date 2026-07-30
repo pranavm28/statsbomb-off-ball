@@ -1,16 +1,21 @@
-# Core pipeline
-statsbombpy==1.13.0
-pandas==2.1.4
-numpy==1.26.4
-pyarrow==11.0.0
-lightgbm==4.6.0
-scikit-learn==1.3.0
+# Requirements for RUNNING THE APP.
+#
+# The app is a reader: it loads the precomputed parquet files in data/processed
+# and draws them. It trains nothing, so it does not need lightgbm, scikit-learn
+# or statsbombpy. Those belong to the pipeline -- see requirements-pipeline.txt.
+#
+# Lower bounds rather than exact pins, deliberately. A pin ties the install to
+# whatever Python the host happens to offer, and a pin with no matching wheel
+# forces a source build that then fails. Floors let the resolver pick the newest
+# release that does have a wheel for the host interpreter.
 
-# Visualisation / app
-mplsoccer==1.2.2
-matplotlib==3.8.2
-plotly==6.3.0
-streamlit==1.48.1
-
-# Versions above match the environment this was built and validated in.
-# Any recent minor versions should work; statsbombpy pulls StatsBomb Open Data.
+# pandas is capped below 3.0: the code was written against the 2.x API, and
+# 2.3.x still ships wheels for current Python. numpy 2.x is fine -- checked for
+# the aliases numpy 2.0 removed, none are used.
+streamlit>=1.40
+pandas>=2.2,<3
+numpy>=1.26,<3
+pyarrow>=17
+matplotlib>=3.8
+mplsoccer>=1.2
+plotly>=5.20

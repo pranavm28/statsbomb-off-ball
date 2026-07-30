@@ -38,12 +38,12 @@ features -- so the contribution of seeing the defenders is measured, not claimed
 from __future__ import annotations
 import numpy as np
 import pandas as pd
-import lightgbm as lgb
-from sklearn.model_selection import GroupKFold
-from sklearn.metrics import roc_auc_score, brier_score_loss
-from sklearn.calibration import calibration_curve
 
 import config
+
+# lightgbm and scikit-learn are imported lazily inside fit_value(). Only the
+# training path needs them; the Streamlit app imports this module purely for the
+# feature-name constants below, and should not have to install the ML stack.
 
 # state features that EVENT DATA ALONE could produce
 BASE_STATE = ["ball_x", "ball_y", "player_x", "player_y", "dist_ball_player",
@@ -123,6 +123,11 @@ def fit_value(states: pd.DataFrame, target: str = "shot_5s"):
     Fit V on all states. Returns (states with V columns, report).
     Fit twice -- base vs base+360 -- on identical rows and folds.
     """
+    import lightgbm as lgb
+    from sklearn.model_selection import GroupKFold
+    from sklearn.metrics import roc_auc_score, brier_score_loss
+    from sklearn.calibration import calibration_curve
+
     df = states.dropna(subset=ALL_STATE + [target]).reset_index(drop=True)
     y = df[target].astype(int).values
     groups = df["match_id"].values

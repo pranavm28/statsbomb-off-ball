@@ -115,14 +115,30 @@ at everything would be a metric that measures nothing.
 
 ## Reproduce
 
+**Just run the app.** The precomputed outputs are committed, so no rebuild and no
+StatsBomb download is needed:
+
 ```bash
-pip install -r requirements.txt        # any recent Python 3.10+
-python build_runs.py                   # pooled 4-season build (downloads ~170 MB of 360 once, then cached)
-streamlit run app/streamlit_app.py     # the app; "Off-ball runs" is the first page
+pip install -r requirements.txt
+streamlit run app/streamlit_app.py
+```
+
+**Rebuild the dataset and refit the models** — needs Python 3.11 or 3.12, because
+LightGBM has no wheel for 3.13+ yet:
+
+```bash
+pip install -r requirements-pipeline.txt
+python build_runs.py
 ```
 
 Outputs → `outputs/run_player_metrics.csv`, `run_team_metrics.csv`,
 `run_report.json`; intermediates → `data/processed/runs.parquet`.
+
+The two requirement files are split on purpose. The app only *reads* the parquet
+files, so it needs no ML stack; `requirements.txt` is therefore small and uses
+version floors so it installs on whatever Python a host offers.
+`requirements-pipeline.txt` pins exact versions instead, so re-running the
+pipeline reproduces the reported numbers rather than merely approximating them.
 
 ## Code layout
 

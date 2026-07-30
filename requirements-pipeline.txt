@@ -1,0 +1,19 @@
+# Requirements for REBUILDING THE DATASET AND REFITTING THE MODELS
+# (i.e. running build_runs.py). Not needed to run the app.
+#
+# Exact pins here, on purpose: these are the versions the reported numbers were
+# produced with, so anyone re-running the pipeline reproduces the figures in the
+# write-up rather than approximately reproducing them. Use Python 3.11 or 3.12.
+
+-r requirements.txt
+
+statsbombpy==1.13.0
+lightgbm==4.6.0
+scikit-learn==1.3.0
+
+# Pinned to the validated environment for the pipeline only.
+pandas==2.1.4
+numpy==1.26.4
+pyarrow==11.0.0
+matplotlib==3.8.2
+mplsoccer==1.2.2

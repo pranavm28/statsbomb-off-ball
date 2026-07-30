@@ -52,14 +52,14 @@ say out loud, not a footnote.
 from __future__ import annotations
 import numpy as np
 import pandas as pd
-import lightgbm as lgb
-from sklearn.model_selection import GroupKFold
-from sklearn.metrics import roc_auc_score, brier_score_loss
-from sklearn.calibration import calibration_curve
 
 import config
 from src import pitch
 from src import threat as threatmod
+
+# lightgbm and scikit-learn are imported lazily inside fit_run_value(). Only the
+# training path needs them; the Streamlit app imports this module purely for the
+# feature-name constants below, and should not have to install the ML stack.
 
 # what the run itself looks like
 RUN_FEATURES = ["run_distance", "run_fwd", "run_lateral", "run_speed",
@@ -352,6 +352,11 @@ def fit_run_value(runs: pd.DataFrame):
     "do the RUN features add anything over simply where it happened?" is answered
     with evidence rather than assertion.
     """
+    import lightgbm as lgb
+    from sklearn.model_selection import GroupKFold
+    from sklearn.metrics import roc_auc_score, brier_score_loss
+    from sklearn.calibration import calibration_curve
+
     df = runs.dropna(subset=CONTEXT_FEATURES + RUN_FEATURES).reset_index(drop=True)
     groups = df["match_id"].values
     y = df["y_progress"].astype(int).values
