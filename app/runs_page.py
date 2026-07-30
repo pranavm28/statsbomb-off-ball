@@ -48,27 +48,52 @@ def run_map(runs_p: pd.DataFrame, colour_by="in_behind", title=None):
 
 
 def _frame_players(fr, event_id):
-    import numpy as np
+    """Teammate and opponent coordinates for one freeze-frame."""
     f = fr[fr["id"] == event_id]
     if len(f) == 0:
         return None, None
-    locs = np.array([list(l) for l in f["location"].values], float)
-    tm = f["teammate"].values.astype(bool)
+    locs = np.column_stack([f["x"].to_numpy(float), f["y"].to_numpy(float)])
+    tm = f["teammate"].to_numpy(bool)
     return locs[tm], locs[~tm]
 
 
 @st.cache_data(show_spinner=False)
-def _load_frames_for(match_id: int):
-    """Freeze-frames for one match, from whichever competition cache holds it."""
+def _load_all_frames():
+    """
+    Every freeze-frame the run explorer can reach, normalised to x/y columns.
+
+    Prefers data/processed/frames_app.parquet -- the slim extract built by
+    make_app_frames.py, which covers all reachable frames in ~19 MB and is
+    committed, so a deployed copy has them. Falls back to the full raw 360
+    caches when those are present, which keeps a local checkout unchanged.
+    """
+    slim = config.DATA_PROC / "frames_app.parquet"
+    if slim.exists():
+        return pd.read_parquet(slim, columns=["id", "match_id", "teammate", "x", "y"])
+
+    parts = []
     for cid, sid, _ in config.COMPETITIONS:
         fp = config.DATA_RAW / f"frames_{cid}_{sid}.parquet"
         if not fp.exists():
             continue
-        fr = pd.read_parquet(fp, columns=["id", "match_id", "teammate", "actor", "location"])
-        sub = fr[fr["match_id"] == match_id]
-        if len(sub):
-            return sub
-    return None
+        fr = pd.read_parquet(fp, columns=["id", "match_id", "teammate", "location"])
+        xy = np.full((len(fr), 2), np.nan)
+        for i, loc in enumerate(fr["location"].to_numpy()):
+            if loc is not None and len(loc) >= 2:
+                xy[i] = (float(loc[0]), float(loc[1]))
+        fr = fr.drop(columns=["location"])
+        fr["x"], fr["y"] = xy[:, 0], xy[:, 1]
+        parts.append(fr)
+    return pd.concat(parts, ignore_index=True) if parts else None
+
+
+def _load_frames_for(match_id: int):
+    """Freeze-frames for one match, or None if this match has none."""
+    fr = _load_all_frames()
+    if fr is None:
+        return None
+    sub = fr[fr["match_id"] == match_id]
+    return sub if len(sub) else None
 
 
 def _run_explorer(runs: pd.DataFrame):
@@ -121,7 +146,10 @@ def _run_explorer(runs: pd.DataFrame):
     left, right = st.columns([1.75, 1])
     with left:
         if fr is None:
-            st.warning("Freeze-frames not cached for this match.")
+            st.warning(
+                "No freeze-frames available for this match. Build them with "
+                "`python make_app_frames.py` (needs the raw 360 caches from "
+                "`python build_runs.py`).")
         else:
             mates_rel, defs_rel = _frame_players(fr, row["pass_event_id"])
             mates_rec, defs_rec = _frame_players(fr, row["receipt_event_id"])

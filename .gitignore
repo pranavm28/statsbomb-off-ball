@@ -3,12 +3,13 @@
 # ---------------------------------------------------------------------------
 data/raw/
 
-# Large intermediates. The two files the app needs are committed explicitly
-# (see the !negations below); everything else is rebuildable.
+# Large intermediates. The files the app needs at runtime are committed
+# explicitly (see the !negations below); everything else is rebuildable.
 data/processed/*
 !data/processed/runs.parquet
 !data/processed/minutes.parquet
 !data/processed/actions_app.parquet
+!data/processed/frames_app.parquet
 !data/processed/threat_grid.npy
 
 # Logs and scratch renders

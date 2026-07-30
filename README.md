@@ -128,7 +128,8 @@ LightGBM has no wheel for 3.13+ yet:
 
 ```bash
 pip install -r requirements-pipeline.txt
-python build_runs.py
+python build_runs.py          # downloads ~240 MB of 360 once, then cached
+python make_app_frames.py     # slim freeze-frame extract the run explorer reads
 ```
 
 Outputs → `outputs/run_player_metrics.csv`, `run_team_metrics.csv`,
