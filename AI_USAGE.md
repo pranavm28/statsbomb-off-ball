@@ -88,7 +88,7 @@ Each step: **my call → what came back → what I changed.**
 - **Came back:** there is **no** full league season with 360 in the open data — every
   "league" release is one club's season.
 - **My decision:** pool all four that exist — Barcelona 20/21, PSG 21/22, PSG 22/23,
-  Leverkusen 23/24. **127 matches, 26–93 matches per player.**
+  Leverkusen 23/24. **123 matches; qualified players appear in 11–93 of them.**
 
 ### Step 7 — Caught the "not a model" problem a second time
 

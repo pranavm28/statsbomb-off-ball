@@ -25,21 +25,25 @@ Because defenders appear in *both* frames, we can also measure whether the run
 
 ## TL;DR results
 
-- **93,202 runs** reconstructed across **127 matches**; **85% usable** after quality
-  gates; 2.0% rejected as physically impossible sprints (i.e. bad matches, not runs).
-- **The possession-value model.** `V(state) = P(shot within the next 5 SECONDS |
-  ball, player, and the defensive structure around both)` — fitted, out-of-fold,
-  match-grouped. **360 lifts it from AUC 0.9373 → 0.9444**, and `near_def_player` /
-  `near_def_ball` are the **2nd and 3rd most important features** — the freeze-frame
-  is doing real work.
-- **The run itself carries signal.** Same target, identical rows and folds:
-  context-only **AUC 0.7819** → **+ run features 0.7997** (**+0.0178**).
+- **93,202 receipts** examined across **123 matches**. **84%** pass the plausibility
+  gates (unambiguous nearest teammate, reachable distance); **66% (61,823)** are gated
+  *and* involve real movement (≥ 2 m) — those are the runs the metric uses.
+- **Model A — state value.** `V(state) = P(shot within the next 5 SECONDS | ball,
+  player, and the defensive structure around both)` — fitted out-of-fold, match-grouped.
+  The 360 contribution is measured by a **four-tier ablation** on identical rows and
+  folds: event-only **AUC 0.9238** → **+ defensive structure 0.9444**, so **+0.0212**.
+  (A naive "with vs without 360" comparison gives +0.0069 and is wrong — the runner's
+  own position is itself a 360 feature. See `AI_USAGE.md`.)
+- **Model B — run value.** A *different* target: **progression**, i.e. a shot *or* a
+  final-third entry within the next 5 actions. Identical rows and folds, context-only
+  **AUC 0.7806** → **+ run features 0.8002** (**+0.0197**). Run Value per 90 is the
+  per-run decomposition of that lift.
 - **Attacking full-backs are the hidden engine.** 5 of the top 15 by Run Threat/90
   are `DEF`: Frimpong, Tella, Dest, Jordi Alba, Nuno Mendes — across **three
   different clubs and leagues**, so it is not one team's quirk.
-- **Counter-attacks are where runs pay.** In-behind rate **17.4%** on the counter vs
-  **2.7%** in open play; possessions progress **64.9%** vs **33.8%**.
-- **Messi ranks 26th of 59 — and that is the metric working.** See below.
+- **Counter-attacks are where runs pay.** In-behind rate **17.2%** on the counter vs
+  **2.7%** in open play; possessions progress **64.8%** vs **33.7%**.
+- **Messi ranks 24th of 59 — and that is the metric working.** See below.
 
 ## Data: why these four seasons
 
@@ -50,10 +54,10 @@ is a single club's season. So we pool all four that exist:
 |---|---|---|
 | La Liga 2020/21 | Barcelona | 35 |
 | Ligue 1 2021/22 | PSG | 26 |
-| Ligue 1 2022/23 | PSG | 32 |
-| Bundesliga 2023/24 | Bayer Leverkusen | 34 |
+| Ligue 1 2022/23 | PSG | 31 |
+| Bundesliga 2023/24 | Bayer Leverkusen | 31 |
 
-**127 matches — and 26–93 matches per player** (Messi appears in three of them).
+**123 matches — qualified players appear in 11–93 of them** (Messi 93, across three).
 Depth per player is exactly what a movement metric needs; a tournament gives at most
 seven games. **Trade-off, stated honestly:** four different leagues and eras, each a
 single strong team, so players are compared across tactical systems and opponent
@@ -67,21 +71,26 @@ quality. `competition` is carried on every row so it can be controlled or filter
 |---|---|
 | **run** | receiver's displacement between the release frame and the receipt frame (≥ 2 m) |
 | **Run Value / 90** | **THE HEADLINE.** Σ of the fitted value attributable to the **run features specifically** (model with them minus the same model without, identical rows and folds). Isolates the run from the pass that found it. |
-| **ΔV / 90** | `V(after) − V(before)` across the two freeze-frames — the value of the **pass and run together**, credited to the receiver. Diagnostic: ΔV correlates +0.136 with how far the *ball* moved and +0.146 with how far the *player* moved, so it is genuinely joint and is **not** read as the run alone. |
+| **ΔV / 90** | `V(after) − V(before)` across the two freeze-frames — the value of the **pass and run together**, credited to the receiver. Diagnostic: across all runs ΔV correlates +0.134 with how far the *ball* travelled and +0.147 with how far the *player* ran; **inside the final third the ball term overtakes it** (+0.241 vs +0.217), which is why ΔV was rejected as the headline — it partly ranks passers. |
 | **Run Threat / 90** | Σ `xT(reception) − xT(origin)` — descriptive, two grid lookups subtracted. Kept because it explains in one sentence; explicitly **not** a model. |
 | **xG added / 90** | xG of shots taken within 5s of the run |
 | **Net value / 90** | ΔV minus possession value surrendered when the move breaks down |
 | **In-behind / 90** | runs received with ≤1 defender goalside |
 | **Sep vs Avg** | mean separation change **relative to the pool average run** (raw is negative for everyone: defenders converge as the ball arrives) |
 
-**The model.** `V(state) = P(shot within the next 5 SECONDS | ball position, player
+**Model A.** `V(state) = P(shot within the next 5 SECONDS | ball position, player
 position, defensive structure)`, LightGBM, **out-of-fold**, **match-grouped**
 (`GroupKFold`) — events are nested in possessions in matches, so a random split would
-leak. Every window is in **seconds, not action counts**: five short passes take three
-seconds and five duels take thirty, so actions are a poor clock for a run. Outcomes
-recorded per run: shot in 5s, xG in 5s, retention over 10s, loss within 5s, and the
-**threat surrendered** at the turnover (losing it on halfway ≠ losing it with your
-full-backs upfield).
+leak.
+
+**Two clocks, and they differ — worth knowing.** The descriptive outcomes recorded per
+run are in **seconds**: shot in 5s, xG in 5s, retention over 10s, loss within 5s, and
+the **threat surrendered** at the turnover (losing it on halfway ≠ losing it with your
+full-backs upfield). Seconds are right there because five short passes take three
+seconds and five duels take thirty, so action counts are a poor clock for elapsed
+danger. **Model B's `progression` label is the exception**: it looks at the next **5
+actions** of the possession, because progression is a property of the possession's
+sequence of touches rather than of elapsed time.
 
 ## Reconstruction quality (the honest part)
 
@@ -93,7 +102,8 @@ reception point, bounded by what is reachable in the ball-flight time. Two gates
 - **Plausibility** — a reconstruction implying a sprint faster than 9.5 m/s is a
   *mis-match*, not a run. 2.0% of cases; excluded.
 
-Only runs passing both are used (**85%**).
+**84%** of receipts pass both gates. The runs the metric uses are those that also
+involve real movement (≥ 2 m): **66% (61,823)** of all receipts.
 
 ## What it does NOT see — selection bias
 
@@ -102,10 +112,10 @@ centre-back across and was never picked out is **invisible**. This measures *run
 that got the ball*, not all off-ball movement, and it under-credits selfless runners.
 Said first, not in a footnote.
 
-## Messi ranks 26th — why that is correct
+## Messi ranks 24th — why that is correct
 
 Not a bug (though there *was* one — see `AI_USAGE.md`). His profile: mean forward
-component **+0.03 m** (essentially none) versus a pool average of +0.21 and Mbappé's
+component **+0.04 m** (essentially none) versus a pool average of +0.21 and Mbappé's
 +1.42; in-behind rate **1.8%** vs Mbappé's 8.7%. Late-career Messi receives to feet,
 static or dropping, and creates with the ball. **The metric measures one thing —
 off-ball running — and it is not a player rating.** A metric that ranked Messi first

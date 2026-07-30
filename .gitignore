@@ -14,12 +14,18 @@ data/processed/*
 # Logs and scratch renders
 outputs/*.log
 outputs/figures/
-docs/*.jpg
+
+# docs/ is personal reference and submission material, not repo content. The
+# write-up is emailed as a PDF/DOCX; the book, technical report, one-pager and
+# walkthrough notes are for my own prep. Several also quote figures that were
+# later corrected (127 matches, +0.0178, +0.0071 -- the last being the
+# mislabelled baseline whose CORRECTION is a headline point in AI_USAGE.md), so
+# shipping them next to the write-up would contradict it. None are deliverables
+# under §5 of the brief: code+README, the write-up, Part 2, the AI log, Part 3.
+docs/
 
 # Personal preparation material — not part of the deliverable
 walkthrough/
-docs/Walkthrough_Prep_Notes.docx
-docs/make_docs.py
 
 # Python
 __pycache__/
