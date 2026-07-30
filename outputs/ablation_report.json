@@ -1,0 +1,36 @@
+{
+  "target": "shot_5s",
+  "n_rows": 185967,
+  "base_rate": 0.033457548919969674,
+  "tiers": [
+    {
+      "tier": "1. Event data only",
+      "n_features": 3,
+      "auc": 0.9237998809145486,
+      "brier": 0.025993501695157756,
+      "gain_vs_previous": null
+    },
+    {
+      "tier": "2. + where the runner is",
+      "n_features": 7,
+      "auc": 0.9374913069060056,
+      "brier": 0.024401040440237123,
+      "gain_vs_previous": 0.013691425991457007
+    },
+    {
+      "tier": "3. + defensive structure",
+      "n_features": 12,
+      "auc": 0.9444273352212,
+      "brier": 0.023797723459421414,
+      "gain_vs_previous": 0.006936028315194465
+    },
+    {
+      "tier": "4. + compactness / encirclement",
+      "n_features": 16,
+      "auc": 0.9449824293476797,
+      "brier": 0.023762407977769785,
+      "gain_vs_previous": 0.0005550941264796938
+    }
+  ],
+  "total_gain_from_360": 0.021182548433131165
+}

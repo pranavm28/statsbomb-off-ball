@@ -1,0 +1,14 @@
+[theme]
+base = "dark"
+primaryColor = "#877ae8"
+backgroundColor = "#131313"
+secondaryBackgroundColor = "#1e1e1e"
+textColor = "#f2f3f5"
+font = "sans serif"
+
+[browser]
+gatherUsageStats = false
+
+[server]
+# open the app in the default browser automatically on launch
+headless = false

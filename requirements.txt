@@ -1,0 +1,16 @@
+# Core pipeline
+statsbombpy==1.13.0
+pandas==2.1.4
+numpy==1.26.4
+pyarrow==11.0.0
+lightgbm==4.6.0
+scikit-learn==1.3.0
+
+# Visualisation / app
+mplsoccer==1.2.2
+matplotlib==3.8.2
+plotly==6.3.0
+streamlit==1.48.1
+
+# Versions above match the environment this was built and validated in.
+# Any recent minor versions should work; statsbombpy pulls StatsBomb Open Data.

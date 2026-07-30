@@ -1,0 +1,1607 @@
+<meta charset="utf-8">
+<title>Valuing the Run — the whole project, explained</title>
+<style>
+  @page { size: A4; margin: 20mm 18mm 18mm 18mm; }
+  :root{
+    --ink:#1b1f27; --muted:#5c6470; --faint:#8b94a3;
+    --navy:#1f3b63; --teal:#12836a; --red:#b23a48; --amber:#a8761f;
+    --rule:#d8dde4; --panel:#f5f7fa; --panel2:#eef4f1;
+  }
+  *{box-sizing:border-box}
+  body{font-family:Georgia,"Times New Roman",serif;color:var(--ink);
+       font-size:10.6pt;line-height:1.62;margin:0}
+  h1,h2,h3,h4{font-family:Georgia,serif;color:var(--navy);line-height:1.25;
+       page-break-after:avoid}
+  h1{font-size:23pt;margin:0 0 2mm}
+  h2{font-size:15.5pt;margin:0 0 4mm;border-bottom:1.4pt solid var(--navy);padding-bottom:2mm}
+  h3{font-size:12pt;margin:7mm 0 2mm}
+  h4{font-size:10.6pt;margin:5mm 0 1.5mm;color:var(--ink)}
+  p{margin:0 0 3mm;text-align:justify}
+  ul,ol{margin:0 0 3mm 5mm;padding:0} li{margin-bottom:1.4mm}
+  .chapter{page-break-before:always}
+  .part{page-break-before:always;padding-top:55mm;text-align:center}
+  .part .lab{font-size:9pt;letter-spacing:.28em;color:var(--faint);text-transform:uppercase}
+  .part h1{font-size:27pt;color:var(--navy);margin:4mm 0 3mm}
+  .part .sub{color:var(--muted);font-style:italic;font-size:11.5pt;max-width:120mm;margin:0 auto}
+  .chnum{font-size:8.6pt;letter-spacing:.22em;text-transform:uppercase;
+         color:var(--teal);font-weight:bold;margin-bottom:1.5mm}
+  /* the two-voice boxes */
+  .plain,.tech{padding:3.5mm 4.5mm;margin:0 0 4mm;border-radius:1.5mm;page-break-inside:avoid}
+  .plain{background:var(--panel);border-left:2.6pt solid var(--teal)}
+  .tech{background:#fbfaf7;border-left:2.6pt solid var(--navy)}
+  .plain .tag,.tech .tag{display:block;font-size:8pt;letter-spacing:.16em;
+         text-transform:uppercase;font-weight:bold;margin-bottom:1.5mm;font-family:Helvetica,sans-serif}
+  .plain .tag{color:var(--teal)} .tech .tag{color:var(--navy)}
+  .decision{background:var(--panel2);border:.8pt solid #cfe0d8;border-radius:1.5mm;
+         padding:3.5mm 4.5mm;margin:0 0 4mm;page-break-inside:avoid}
+  .decision .tag{display:block;font-size:8pt;letter-spacing:.16em;text-transform:uppercase;
+         font-weight:bold;color:var(--teal);margin-bottom:1.5mm;font-family:Helvetica,sans-serif}
+  .warn{background:#fdf6f2;border-left:2.6pt solid var(--red);padding:3.5mm 4.5mm;
+        margin:0 0 4mm;border-radius:1.5mm;page-break-inside:avoid}
+  .warn .tag{display:block;font-size:8pt;letter-spacing:.16em;text-transform:uppercase;
+        font-weight:bold;color:var(--red);margin-bottom:1.5mm;font-family:Helvetica,sans-serif}
+  code,.mono{font-family:"DejaVu Sans Mono",Consolas,monospace;font-size:9pt}
+  .codeblock{margin:0 0 4mm;page-break-inside:avoid}
+  .codeblock .cap{font-family:Helvetica,sans-serif;font-size:8pt;letter-spacing:.13em;
+    text-transform:uppercase;color:var(--navy);font-weight:bold;
+    background:#eef1f6;border:.8pt solid var(--rule);border-bottom:none;
+    border-radius:1.5mm 1.5mm 0 0;padding:1.6mm 3mm}
+  .codeblock pre{margin:0;border-radius:0 0 1.5mm 1.5mm}
+  .codeblock .note{font-size:8.6pt;color:var(--muted);font-style:italic;margin:1.5mm 0 0}
+  pre{background:#f7f8fa;border:.8pt solid var(--rule);border-radius:1.5mm;
+      padding:3mm 4mm;overflow:visible;white-space:pre-wrap;font-size:8.8pt;
+      line-height:1.5;margin:0 0 4mm;page-break-inside:avoid}
+  table{width:100%;border-collapse:collapse;font-size:9.2pt;margin:0 0 3mm;
+        page-break-inside:avoid;font-family:Helvetica,Arial,sans-serif}
+  th{background:var(--navy);color:#fff;text-align:left;padding:2mm 2.5mm;font-size:8.6pt;
+     font-weight:bold}
+  td{padding:1.8mm 2.5mm;border-bottom:.6pt solid var(--rule);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  figure{margin:4mm 0;text-align:center;page-break-inside:avoid}
+  figure img{max-width:100%}
+  figcaption{font-size:8.6pt;color:var(--muted);font-style:italic;margin-top:1.5mm;
+             text-align:center}
+  .toc{font-size:10pt} .toc .p{font-weight:bold;color:var(--navy);margin:4mm 0 1.5mm}
+  .toc .c{margin-left:5mm;color:var(--ink)}
+  .title-page{text-align:center;padding-top:62mm}
+  .title-page .eyebrow{font-size:9pt;letter-spacing:.3em;text-transform:uppercase;color:var(--faint)}
+  .title-page h1{font-size:32pt;margin:6mm 0 4mm}
+  .title-page .sub{font-size:12.5pt;color:var(--muted);font-style:italic}
+  .title-page .meta{margin-top:26mm;font-size:9.5pt;color:var(--faint)}
+  .kv{display:flex;gap:4mm;margin:0 0 2mm}
+  .kv .k{min-width:34mm;font-weight:bold;font-size:9.4pt}
+  .lead{font-size:11.4pt;color:var(--muted);font-style:italic;margin-bottom:5mm}
+</style>
+
+<!-- ============================ TITLE ============================ -->
+<div class="title-page">
+  <div class="eyebrow">A project notebook</div>
+  <h1>Valuing the Run</h1>
+  <div class="sub">How we measured off-ball movement from camera data —<br>
+    and everything we got wrong on the way</div>
+  <div class="meta">
+    Pranav Mohan<br>
+    StatsBomb 360 · four club seasons · 93,202 reconstructed runs
+  </div>
+</div>
+
+<!-- ============================ TOC ============================ -->
+<div class="chapter">
+  <h2>Contents</h2>
+  <div class="toc">
+    <div class="p">Part I — The Problem and the Data</div>
+    <div class="c">1. The question nobody can answer</div>
+    <div class="c">2. What football data actually looks like</div>
+    <div class="c">3. The data reality check</div>
+
+    <div class="p">Part II — The Concepts, Explained Twice</div>
+    <div class="c">4. Machine learning from the ground up — and what this project needed</div>
+    <div class="c">5. Possession value, xT, and what "modelled" means</div>
+    <div class="c">6. Markov chains and value iteration</div>
+    <div class="c">7. Why supervised learning, and why LightGBM</div>
+    <div class="c">8. How you know a model works: AUC, Brier, calibration</div>
+    <div class="c">9. How you avoid fooling yourself: splits, folds, leakage</div>
+    <div class="c">10. Ablation — the honest way to ask "does this help?"</div>
+
+    <div class="p">Part III — The Build, in Order</div>
+    <div class="c">11. Build 1: the generic model, and why it was killed</div>
+    <div class="c">12. Builds 2 and 3: the space model and a null result</div>
+    <div class="c">13. The pivot: off-ball runs</div>
+    <div class="c">14. Reconstructing a run from two snapshots</div>
+    <div class="c">15. Quality gates: when a "run" is not a run</div>
+    <div class="c">16. Building the possession-value model</div>
+    <div class="c">17. Separating the run from the pass</div>
+    <div class="c">18. What "value added" actually measures</div>
+    <div class="c">19. The final-third correction</div>
+    <div class="c">20. Compactness: a split result</div>
+
+    <div class="p">Part IV — Results and Honesty</div>
+    <div class="c">21. What the numbers say</div>
+    <div class="c">22. The feature that lies</div>
+    <div class="c">23. What breaks it</div>
+    <div class="c">24. What I would do next</div>
+
+    <div class="p">Appendices</div>
+    <div class="c">A. Glossary</div>
+    <div class="c">B. Every number in one place</div>
+    <div class="c">C. Code map</div>
+    <div class="c">D. The parameters, and what each one does</div>
+  </div>
+</div>
+
+<!-- ============================ PART I ============================ -->
+<div class="part">
+  <div class="lab">Part One</div>
+  <h1>The Problem and the Data</h1>
+  <div class="sub">What we set out to measure, and what the data would and would not let us see</div>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter One</div>
+  <h2>The question nobody can answer</h2>
+  <p class="lead">Every number in football credits the player who touched the ball.</p>
+
+  <p>Expected goals credits the shooter. Expected assists credits the passer. Expected
+  threat credits whoever carried or played the ball forward. Every one of these is
+  measured at the moment of contact with the ball.</p>
+
+  <p>Now think about what actually happens in the ten seconds before a goal. A striker
+  drifts off the shoulder of the last defender. A full-back starts an overlap that pulls
+  the winger's marker two yards inside. A midfielder checks into a pocket between the
+  lines. Only one of those players will touch the ball. In the data, the other two did
+  nothing at all.</p>
+
+  <p>This is not a small gap. "Does he move well without the ball?" is among the first
+  questions any scout asks about a forward, and the honest answer from data has always
+  been: <em>we cannot see that</em>.</p>
+
+  <div class="decision">
+    <span class="tag">Why this question, for this project</span>
+    <p style="margin:0">There was a second reason to choose it. StatsBomb 360 data gives
+    the position of every visible player at the moment of each event. Most things you can
+    do with it, you could approximate without it. But you cannot measure a player who is
+    <strong>not on the ball</strong> without seeing him — so this is a question where the
+    camera data is genuinely required rather than merely convenient. If the data has a
+    reason to exist, this is it.</p>
+  </div>
+
+  <h3>What "measuring a run" has to mean</h3>
+  <p>Before any modelling, the question needs a definition sharp enough to compute. A
+  useful measure of an off-ball run has to answer three things:</p>
+  <ul>
+    <li><strong>Where did he start and where did he end?</strong> Without both, there is
+    no movement, only a position.</li>
+    <li><strong>Did the movement beat anybody?</strong> Running into space nobody was
+    contesting is not the same as pulling away from a marker.</li>
+    <li><strong>Did it make the team more dangerous?</strong> A run that ends in a
+    dangerous position is worth more than an identical run into a harmless one.</li>
+  </ul>
+  <p>The rest of this book is, in effect, an account of getting those three things out of
+  data that was never designed to provide them.</p>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Two</div>
+  <h2>What football data actually looks like</h2>
+
+  <h3>Event data: a list of touches</h3>
+  <p>The standard football dataset is a long list of events. Each row is one thing that
+  happened: a pass, a carry, a shot, a tackle. Each row carries a player, a team, a
+  timestamp, a pitch location, and some type-specific detail (was the pass completed,
+  what was the shot's expected-goals value).</p>
+
+  <p>A match has roughly 3,000 to 4,000 of these. It is a rich record of everything that
+  happened <em>to the ball</em>, and a complete blank about everything else. Twenty-one
+  players are invisible at any given moment.</p>
+
+  <h3>360 data: a snapshot of everybody</h3>
+  <p>StatsBomb 360 adds, for each event, a <strong>freeze-frame</strong>: the coordinates
+  of every player the broadcast camera could see at that instant, each tagged as a
+  team-mate or an opponent of the player on the ball.</p>
+
+  <table>
+    <tr><th>What a freeze-frame gives you</th><th>What it does not</th></tr>
+    <tr><td>Every visible player's position at that moment</td><td>Any player outside the camera view</td></tr>
+    <tr><td>Whether each is a team-mate or opponent</td><td><strong>Player identities</strong> — the dots are anonymous</td></tr>
+    <tr><td>Who the ball-player is (tagged <code>actor</code>)</td><td><strong>Velocity</strong> — it is a still photo, not video</td></tr>
+    <tr><td>The goalkeeper flag</td><td>Anything between two events</td></tr>
+  </table>
+
+  <div class="warn">
+    <span class="tag">The constraint that shaped everything</span>
+    <p style="margin:0">The off-ball dots are <strong>anonymous</strong>. You can see that
+    a team-mate is standing at (62, 22); you cannot see <em>which</em> team-mate. This
+    single fact rules out the naive approach — "track each named player's movement between
+    frames" — and forced the method described in Chapter 14.</p>
+  </div>
+
+  <h3>The detail that made the project possible</h3>
+  <p>StatsBomb records a <code>Ball Receipt</code> event when a player receives a pass.
+  Crucially, that event has <strong>its own freeze-frame</strong>, and in it the receiver
+  is the <code>actor</code> — meaning at the moment of receipt he is <em>named and
+  precisely located</em>, along with every defender around him.</p>
+  <p>So for every completed pass we have two photographs a second or two apart: one when
+  the ball left, one when it arrived. That pair is the raw material for everything that
+  follows.</p>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Three</div>
+  <h2>The data reality check</h2>
+
+  <p>An early instinct was to use a tournament — the 2022 World Cup has 360 data on all 64
+  matches and the most recognisable players. That instinct was wrong, for a reason worth
+  stating clearly.</p>
+
+  <div class="decision">
+    <span class="tag">Decision — and the reasoning</span>
+    <p>A metric about <em>movement</em> needs many observations <strong>per player</strong>.
+    A tournament gives a player three to seven matches. That is enough to rank teams and
+    far too little to characterise how an individual moves.</p>
+    <p style="margin:0">So the requirement became: maximise matches per player, not matches
+    in total.</p>
+  </div>
+
+  <h3>There is no full league season with 360</h3>
+  <p>The obvious answer was a league season. Checking the open data showed that every
+  "league" release is in fact <strong>a single club's season</strong> — the other clubs
+  appear only in their two fixtures against that club.</p>
+
+  <table>
+    <tr><th>Competition</th><th>What it actually is</th><th>Matches</th></tr>
+    <tr><td>La Liga 2020/21</td><td>Barcelona's season</td><td>35</td></tr>
+    <tr><td>Ligue 1 2021/22</td><td>PSG's season</td><td>26</td></tr>
+    <tr><td>Ligue 1 2022/23</td><td>PSG's season</td><td>32</td></tr>
+    <tr><td>Bundesliga 2023/24</td><td>Bayer Leverkusen's season</td><td>34</td></tr>
+    <tr><td>World Cup 2022</td><td>A tournament</td><td>64 (max 7 per player)</td></tr>
+  </table>
+
+  <p>The resolution was to <strong>pool all four club seasons</strong>: 127 matches, and
+  between 26 and 93 matches per player. Messi appears in three of them.</p>
+
+  <div class="warn">
+    <span class="tag">The trade-off, stated plainly</span>
+    <p style="margin:0">Four different leagues, four different eras, and each is a strong
+    team, so opponents are not typical. Players are therefore compared across tactical
+    systems. Within a squad the comparison is clean; across leagues, treat the order as
+    indicative. The competition label is carried on every row so it can be controlled for.</p>
+  </div>
+</div>
+
+<!-- ============================ PART II ============================ -->
+<div class="part">
+  <div class="lab">Part Two</div>
+  <h1>The Concepts, Explained Twice</h1>
+  <div class="sub">Every idea the project uses, given once in plain English and once
+    properly — with the decision it changed</div>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Four</div>
+  <h2>Machine learning from the ground up — and what this project needed</h2>
+  <p class="lead">Before any football, a short map of the field: what the main kinds of
+  machine learning are, and which one this problem actually is.</p>
+
+  <h3>The two big families</h3>
+  <div class="plain"><span class="tag">In plain English</span>
+    <p><strong>Supervised learning</strong> is learning with an answer key. You show the
+    computer thousands of examples where the outcome is already known — "here is the
+    situation, here is what happened next" — and it learns the pattern connecting them.
+    Then you hand it a new situation and it predicts.</p>
+    <p style="margin:0"><strong>Unsupervised learning</strong> has no answer key. You give
+    it data and ask it to find structure by itself: which things resemble each other, what
+    the natural groupings are. Nobody says what is correct, because there is no correct.</p>
+  </div>
+
+  <table>
+    <tr><th></th><th>Supervised</th><th>Unsupervised</th></tr>
+    <tr><td>You provide</td><td>Inputs <em>and</em> known outcomes</td><td>Inputs only</td></tr>
+    <tr><td>It learns</td><td>A mapping from input to outcome</td><td>Structure, groupings, compression</td></tr>
+    <tr><td>Typical tasks</td><td>Classification, regression</td><td>Clustering, dimensionality reduction</td></tr>
+    <tr><td>Can you score it?</td><td><strong>Yes</strong> — compare prediction to truth</td><td>Not objectively; you judge usefulness</td></tr>
+    <tr><td>Football example</td><td>"Will this shot be a goal?" (xG)</td><td>"Which players have similar profiles?"</td></tr>
+  </table>
+
+  <h3>Inside supervised learning: two task types</h3>
+  <ul>
+    <li><strong>Classification</strong> — the outcome is a category, usually yes/no, and
+    usually you want the <em>probability</em> rather than the bare label. <em>Will a shot
+    follow in the next five seconds?</em> is classification.</li>
+    <li><strong>Regression</strong> — the outcome is a number on a continuous scale.
+    <em>How far will this player run?</em> is regression.</li>
+  </ul>
+
+  <h3>Which one is this project?</h3>
+  <div class="decision">
+    <span class="tag">The decision, and the reasoning</span>
+    <p><strong>Supervised, binary classification, and specifically probability
+    estimation.</strong> Three reasons, in order of importance:</p>
+    <ol style="margin-bottom:0">
+      <li><strong>We have an answer key for free.</strong> For every moment we can look
+      forward in time and see whether a shot followed. That is an objective label on
+      186,000 examples at no cost. When a real answer key exists, supervised learning is
+      the obvious choice, because it lets you <em>measure</em> whether you are right.</li>
+      <li><strong>We need a probability, not a label.</strong> The whole method rests on
+      subtracting one value from another (<code>ΔV</code>). A yes/no cannot be subtracted
+      meaningfully; a calibrated probability can.</li>
+      <li><strong>We need to be scoreable.</strong> Every claim in this project rests on
+      ablation — training twice and comparing. That requires an objective score, which
+      only supervised learning provides.</li>
+    </ol>
+  </div>
+
+  <h3>What else could have been used, and why it was not</h3>
+  <table>
+    <tr><th>Approach</th><th>What it would look like here</th><th>Why not</th></tr>
+    <tr><td><strong>Unsupervised clustering</strong><br>(k-means, DBSCAN)</td>
+        <td>Group runs into types — in behind, checking short, overlapping — without
+        labelling them first</td>
+        <td>Genuinely interesting and on the list for later. But it produces
+        <em>descriptions</em>, not <em>values</em>: it cannot say a run was worth
+        something, and it cannot be scored. It could never answer the question this
+        project was set.</td></tr>
+    <tr><td><strong>Logistic regression</strong></td>
+        <td>The same supervised task with a linear model</td>
+        <td>The natural baseline, and a serious candidate. Rejected because the
+        relationships are strongly interactive — a defender three metres away means
+        something completely different on the halfway line and in the six-yard box. A
+        linear model needs those interactions hand-built; a tree model finds them. Its
+        advantage, interpretable coefficients, matters less here because the project
+        explains itself through ablation rather than coefficients.</td></tr>
+    <tr><td><strong>Neural network</strong></td>
+        <td>A small feed-forward network on the same features</td>
+        <td>Overkill at this data size, worse with missing values, slower to iterate, and
+        much harder to defend line by line in a live walkthrough. It would most likely
+        match the tree ensemble rather than beat it.</td></tr>
+    <tr><td><strong>Reinforcement learning</strong></td>
+        <td>Treat football as a sequential decision problem and learn a policy</td>
+        <td>Conceptually the "right" frame for possession value, and where the literature
+        points. But it needs a simulator or vastly more data, and it is unfalsifiable at
+        this scale — you cannot check a learned policy against 127 matches.</td></tr>
+    <tr><td><strong>Survival analysis</strong></td>
+        <td>Model <em>time until</em> a shot rather than a fixed five-second window</td>
+        <td>Arguably more elegant, and it removes an arbitrary parameter. Left as a future
+        improvement because the fixed window is far easier to explain and its length can
+        be sensitivity-tested directly.</td></tr>
+  </table>
+
+  <div class="warn">
+    <span class="tag">An honest omission</span>
+    <p style="margin:0">Logistic regression was never actually run as a comparison. It
+    should have been — a linear baseline is cheap and would have quantified how much the
+    tree model's flexibility is really buying. That is listed in the final chapter as
+    something to fix rather than quietly passed over.</p>
+  </div>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Five</div>
+  <h2>Possession value, xT, and what "modelled" means</h2>
+
+  <p>These three terms get used interchangeably and they are not the same thing. Getting
+  the distinction right is the single most important idea in the project, and it is the
+  question I was asked twice before the answer was good enough.</p>
+
+  <h3>Possession value</h3>
+  <div class="plain"><span class="tag">In plain English</span>
+    <p style="margin:0">"How good is this situation?" Possession value is the umbrella
+    term for any number that answers that. If your team has the ball on the edge of the
+    opposition box, the situation is worth a lot. On your own goal line, very little.
+    Every method below is one way of putting a number on that intuition.</p>
+  </div>
+  <div class="tech"><span class="tag">Technically</span>
+    <p style="margin:0">A function <code>V(state) → ℝ</code> mapping a game state to an
+    expected future reward. Implementations differ in three ways: what counts as a state,
+    what reward is predicted, and whether the function is fitted or constructed.</p>
+  </div>
+
+  <h3>Expected Threat (xT)</h3>
+  <div class="plain"><span class="tag">In plain English</span>
+    <p>Picture a <strong>price map</strong> of the pitch. Every square has a price: how
+    likely a goal is to follow from there. Your own corner flag is nearly worthless. The
+    penalty spot is expensive. Moving the ball from a cheap square to an expensive one is
+    "creating threat", and the difference between the two prices is how much you created.</p>
+    <p style="margin:0">The catch: the map knows <strong>only where the ball is</strong>.
+    Two players standing on the same square get the same price — one with an open goal
+    ahead, one surrounded by three defenders.</p>
+  </div>
+  <div class="tech"><span class="tag">Technically</span>
+    <p style="margin:0">A value function over a discretised pitch (here 24 × 16 = 384
+    cells), solved as a Markov decision process by value iteration (Chapter 6). Once
+    solved it is a constant lookup table. Its state space is the ball's cell and nothing
+    else — no opponents, no team-mates, no game state.</p>
+  </div>
+
+  <figure>
+    <img src="figures/fig02_xt_surface.png">
+    <figcaption>Figure 4.1 — the threat surface fitted in this project. Value concentrates
+      sharply near goal and decays quickly; the deepest cells are almost worthless.</figcaption>
+  </figure>
+
+  <h3>What "the modelled bit" is here</h3>
+  <p>The distinction that matters is between a <strong>lookup</strong> and a
+  <strong>model</strong>.</p>
+
+  <table>
+    <tr><th></th><th>Expected Threat</th><th>Our V(state)</th></tr>
+    <tr><td>Form</td><td>Lookup table over pitch cells</td><td>Fitted classifier (LightGBM)</td></tr>
+    <tr><td>Inputs</td><td>Ball location only</td><td>Ball, the player, and the defenders around both</td></tr>
+    <tr><td>How it is built</td><td>Markov chain + value iteration</td><td>Supervised learning on labelled outcomes</td></tr>
+    <tr><td>What it predicts</td><td>Goal probability, propagated backwards</td><td>P(shot within the next 5 seconds)</td></tr>
+    <tr><td>Sees the opposition?</td><td><strong>No</strong></td><td><strong>Yes</strong></td></tr>
+  </table>
+
+  <pre>V(state) = P( the team in possession takes a shot within the next 5 SECONDS
+              | ball position, the player's position, and the
+                defensive structure around both )
+
+run value = ΔV = V(after) − V(before)</pre>
+
+  <div class="decision">
+    <span class="tag">The decision this drove</span>
+    <p>The first version of the run metric was <code>Σ [xT(reception) − xT(origin)]</code>
+    — two lookups on a fitted grid, subtracted. When asked what was actually being
+    modelled, the honest answer was: <strong>nothing new</strong>. That is arithmetic on
+    someone else's model.</p>
+    <p style="margin:0">It was replaced by the fitted <code>V</code> above. The xT version
+    survives in the output as a plain-language companion — it explains in one sentence to
+    a non-technical audience — but it is labelled as descriptive, not as the model.</p>
+  </div>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Six</div>
+  <h2>Markov chains and value iteration</h2>
+  <p class="lead">How the price map gets its prices.</p>
+
+  <div class="plain"><span class="tag">In plain English</span>
+    <p>A <strong>Markov chain</strong> is a system that hops between situations, where
+    where you go next depends <em>only on where you are now</em> — not on how you got
+    there. Snakes and Ladders is a Markov chain: your next roll does not care about your
+    route so far. This is called the <em>memoryless</em> property.</p>
+    <p style="margin:0">Now apply that to a pitch. Chop it into squares. From any square,
+    two things can happen: you shoot, or you move the ball to another square. Watch
+    thousands of matches and you can count how often each happens. Then ask: what is a
+    square worth? A square is worth the goals you score from it directly, <em>plus</em>
+    the value of the squares it usually leads to. Since those squares have the same
+    question attached, you solve it by going round in circles until the numbers stop
+    changing.</p>
+  </div>
+
+  <figure>
+    <img src="figures/fig01_markov.png">
+    <figcaption>Figure 5.1 — value flows backwards. The penalty area is valuable because
+      shots taken there score; midfield is valuable because it leads to the penalty area.</figcaption>
+  </figure>
+
+  <div class="tech"><span class="tag">Technically</span>
+    <p>Each cell is a state. From cell <em>i</em> the ball is either shot (with probability
+    <code>P(shoot|i)</code>, scoring with <code>P(goal|shoot,i)</code>) or moved, with
+    transition matrix <code>T(i→j)</code> estimated from completed passes and carries. The
+    value function satisfies a Bellman equation:</p>
+    <pre style="margin:2mm 0">xT(i) = P(shoot|i)·P(goal|shoot,i)  +  P(move|i)·Σⱼ T(i→j)·xT(j)</pre>
+    <p style="margin:0">This is solved by <strong>value iteration</strong>: initialise
+    <code>xT = 0</code> everywhere, apply the equation repeatedly, and the values converge
+    (we use 40 sweeps). The contraction is guaranteed because <code>P(move|i) &lt; 1</code>
+    — some probability mass leaves the chain at every step, so the recursion terminates.</p>
+  </div>
+
+  <div class="codeblock">
+    <div class="cap">src/threat.py — value iteration, the whole solver</div>
+<pre>xt = np.zeros((NX, NY))                 # every cell starts worth nothing
+shot_value = p_shot * goalp             # value if you shoot from here, right now
+
+for _ in range(config.XT_ITERATIONS):   # 40 sweeps is plenty to converge
+    xt = shot_value + p_move * np.einsum("ijkl,kl-&gt;ij", T, xt)
+return xt</pre>
+    <div class="note">The whole Bellman equation is one line. <code>T</code> is the
+      transition tensor <code>T[i,j,k,l]</code> = probability the ball moves from cell
+      (i,j) to cell (k,l); the <code>einsum</code> contracts it against the current values
+      to give the expected value of moving. Each sweep pushes value one pass further back
+      from goal. It converges because <code>p_move &lt; 1</code> — some probability leaves
+      the chain every step.</div>
+  </div>
+
+  <h4>Why this matters for the project</h4>
+  <p>Two reasons. First, xT is the <em>threat</em> layer used inside our own model as a
+  feature, so its properties propagate. Second, it has a quirk that caused a real bug:
+  because value leaks everywhere through the move term, <strong>no cell has value
+  zero</strong>. The lowest value on our surface is about 0.06, not 0. An early metric
+  summed <code>control × threat</code> and was therefore dominated by defenders making
+  many harmless deep receptions, each earning a small but non-zero score. The fix was to
+  weight by threat <em>above the pitch floor</em>.</p>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Seven</div>
+  <h2>Why supervised learning, and why LightGBM</h2>
+
+  <h3>Lookup versus model</h3>
+  <div class="plain"><span class="tag">In plain English</span>
+    <p style="margin:0">A <strong>lookup</strong> is a price list: find the row, read the
+    number. It cannot account for anything not on the list. A <strong>model</strong> has
+    been shown thousands of examples and has learned which <em>combinations</em> of
+    circumstances lead to which outcomes. Ask it about a situation nobody has seen before
+    and it will still give a sensible answer.</p>
+  </div>
+
+  <h3>What gradient boosting actually is</h3>
+  <div class="plain"><span class="tag">In plain English</span>
+    <p style="margin:0">Picture a series of simple yes/no flowcharts. The first makes a
+    crude guess — "if the ball is in the box, say 20%". The second is built specifically to
+    fix the first one's mistakes. The third fixes what is still wrong, and so on for a few
+    hundred rounds. Each flowchart on its own is weak. The accumulated stack is strong.
+    That is <strong>boosting</strong>: many weak learners, each correcting its
+    predecessors.</p>
+  </div>
+  <div class="tech"><span class="tag">Technically</span>
+    <p style="margin:0">Additive training of shallow decision trees. At round <em>m</em>
+    the new tree is fitted to the negative gradient of the loss with respect to the current
+    ensemble's predictions — for log-loss, that gradient is simply the residual
+    <code>(y − p̂)</code>. Predictions accumulate as
+    <code>F<sub>m</sub>(x) = F<sub>m−1</sub>(x) + η·h<sub>m</sub>(x)</code>, where
+    <code>η</code> is the learning rate. LightGBM grows trees <em>leaf-wise</em> (splitting
+    whichever leaf reduces loss most) rather than level-wise, which converges in fewer
+    trees but overfits more readily — hence the leaf cap below.</p>
+  </div>
+
+  <h3>Why this and not something else</h3>
+  <table>
+    <tr><th>Requirement of this problem</th><th>Why gradient-boosted trees fit it</th></tr>
+    <tr><td><strong>Strong interactions.</strong> A defender three metres away means
+        something different on the halfway line than in the box.</td>
+        <td>Trees represent interactions natively — a path down a tree <em>is</em> a
+        conjunction of conditions. A linear model would need every interaction specified
+        by hand.</td></tr>
+    <tr><td><strong>Non-linear, saturating relationships.</strong> Threat rises sharply
+        near goal, not steadily.</td>
+        <td>Trees are piecewise-constant, so they fit sharp thresholds without any
+        transformation of the inputs.</td></tr>
+    <tr><td><strong>Missing values.</strong> Not every freeze-frame yields every feature.</td>
+        <td>LightGBM routes missing values down a learned default branch — no imputation,
+        no silently invented data.</td></tr>
+    <tr><td><strong>Mixed scales.</strong> Metres, counts, probabilities, angles.</td>
+        <td>Trees split on order, not magnitude, so no scaling or normalisation is needed
+        and none can go wrong.</td></tr>
+    <tr><td><strong>Fast iteration.</strong> Every model in this book was fitted many
+        times over.</td>
+        <td>LightGBM fits 186,000 rows in seconds, which is what made ablation cheap
+        enough to use everywhere.</td></tr>
+    <tr><td><strong>Explainability under questioning.</strong></td>
+        <td>Every parameter has a plain-language meaning (below). There is no architecture
+        to defend.</td></tr>
+  </table>
+
+  <h3>The parameters we use, and what each one does</h3>
+  <table>
+    <tr><th>Parameter</th><th>Value</th><th>What it controls</th><th>Why this value</th></tr>
+    <tr><td><code>n_estimators</code></td><td>350</td>
+        <td>How many corrective rounds</td>
+        <td>Enough for the loss to flatten at this learning rate; more adds time, not accuracy</td></tr>
+    <tr><td><code>learning_rate</code></td><td>0.05</td>
+        <td>How much each round is trusted</td>
+        <td>Low and cautious. Small steps generalise better; the cost is needing more rounds, which is cheap here</td></tr>
+    <tr><td><code>num_leaves</code></td><td>31</td>
+        <td>Complexity of each individual tree</td>
+        <td>The main overfitting control in leaf-wise growth. 31 is a moderate default; higher would let single trees memorise</td></tr>
+    <tr><td><code>min_child_samples</code></td><td>60</td>
+        <td>Minimum examples behind any rule</td>
+        <td>Refuses to invent a rule from a handful of runs — important with 3.3% positives</td></tr>
+    <tr><td><code>subsample</code></td><td>0.8</td>
+        <td>Fraction of rows each tree sees</td>
+        <td>Decorrelates the trees so they do not all make the same mistake</td></tr>
+    <tr><td><code>colsample_bytree</code></td><td>0.8</td>
+        <td>Fraction of features each tree sees</td>
+        <td>Stops one dominant feature (ball position) from being used by every tree</td></tr>
+    <tr><td><code>random_state</code></td><td>7</td>
+        <td>Seed</td>
+        <td>Fixed so every number in this book is reproducible</td></tr>
+  </table>
+
+  <div class="codeblock">
+    <div class="cap">src/value.py — fitting V, out-of-fold</div>
+<pre>def _oof(feats):
+    X = df[feats].astype(float).values
+    oof = np.zeros(len(df))
+    gkf = GroupKFold(n_splits=min(5, pd.Series(groups).nunique()))
+    for tr, te in gkf.split(X, y, groups):
+        m = lgb.LGBMClassifier(n_estimators=350, learning_rate=0.05, num_leaves=31,
+                               subsample=0.8, colsample_bytree=0.8,
+                               min_child_samples=60, random_state=config.RANDOM_STATE,
+                               n_jobs=-1, verbose=-1)
+        m.fit(X[tr], y[tr])
+        oof[te] = m.predict_proba(X[te])[:, 1]          # column 1 = P(shot)
+    return oof, dict(auc=float(roc_auc_score(y, oof)),
+                     brier=float(brier_score_loss(y, oof)),
+                     n=int(len(y)), base_rate=float(y.mean()))</pre>
+    <div class="note">Three things to point at if asked. <code>groups</code> is match
+      identity, so no match is ever split (Chapter 9). <code>oof[te]</code> stores each
+      prediction into the rows that fold held out, so nothing is scored by a model that
+      trained on it. <code>predict_proba(...)[:, 1]</code> takes the probability of the
+      positive class — a probability, not a label, because ΔV subtracts them.</div>
+  </div>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Eight</div>
+  <h2>How you know a model works</h2>
+  <p class="lead">Three different questions, three different numbers. Confusing them is
+  the most common way to overstate a result.</p>
+
+  <h3>AUC — is the ordering right?</h3>
+  <div class="plain"><span class="tag">In plain English</span>
+    <p style="margin:0">Take one moment that led to a shot and one that did not. Ask the
+    model to score both. AUC is simply <strong>the probability it scored the first one
+    higher</strong>. 0.5 means it is guessing. 1.0 means it never gets the pair the wrong
+    way round. It says nothing about whether the numbers themselves are sensible — only
+    whether the order is.</p>
+  </div>
+  <div class="tech"><span class="tag">Technically</span>
+    <p style="margin:0">Area under the ROC curve; equivalently the Mann–Whitney U
+    statistic normalised by the product of class sizes. Invariant to any monotone
+    transformation of the scores, and — crucially here — insensitive to class imbalance.</p>
+  </div>
+
+  <figure>
+    <img src="figures/fig04_auc.png">
+    <figcaption>Figure 7.1 — AUC asks whether the shot cases sit to the right of the
+      non-shot cases. The ROC curve traces that separation at every threshold.</figcaption>
+  </figure>
+
+  <div class="decision">
+    <span class="tag">Why AUC rather than accuracy</span>
+    <p style="margin:0">Only <strong>3.3%</strong> of the moments in this dataset are
+    followed by a shot. A model that always answered "no shot" would be 96.7% accurate and
+    completely worthless. Accuracy is meaningless under this kind of imbalance; AUC is not
+    fooled by it. This is why every headline number in the project is an AUC.</p>
+  </div>
+
+  <h3>Brier score — are the numbers right?</h3>
+  <div class="plain"><span class="tag">In plain English</span>
+    <p style="margin:0">The average squared miss. If the model says 0.30 and the thing
+    happens, it missed by 0.70. Square it, average over everything, lower is better. Where
+    AUC checks the <em>order</em>, Brier checks the <em>values</em>.</p>
+  </div>
+  <p>Our possession-value model scores <strong>0.0237</strong>, against 0.0243 for the
+  location-only baseline.</p>
+
+  <h3>Calibration — are the probabilities honest?</h3>
+  <div class="plain"><span class="tag">In plain English</span>
+    <p style="margin:0">Of all the moments the model called "5% likely", did about 5% of
+    them actually happen? If yes, it is calibrated. A model can order perfectly and still
+    be systematically over-confident.</p>
+  </div>
+
+  <figure>
+    <img src="figures/fig05_calibration.png">
+    <figcaption>Figure 7.2 — predicted against observed, in bands. The line tracks the
+      diagonal closely, most importantly at the top of the range where run values are
+      largest.</figcaption>
+  </figure>
+
+  <div class="decision">
+    <span class="tag">Why calibration matters more here than usual</span>
+    <p style="margin:0">The value of a run is <strong>one probability minus another</strong>.
+    If the model were consistently inflated at one end of the scale, that bias would carry
+    straight into every run score — and would not show up in AUC at all, because
+    subtracting a constant bias leaves the ordering untouched. This is the reason
+    calibration is reported and not just mentioned.</p>
+  </div>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Nine</div>
+  <h2>How you avoid fooling yourself</h2>
+
+  <h3>Train / test, and k-fold</h3>
+  <div class="plain"><span class="tag">In plain English</span>
+    <p>Grading a model on data it was trained on is like giving a student the exam paper
+    to revise from. It will look brilliant and tell you nothing.</p>
+    <p style="margin:0"><strong>k-fold cross-validation</strong> is the fix: cut the data
+    into five parts, train on four and predict the fifth, then rotate. Every row ends up
+    predicted by a model that never saw it. Those are the numbers we report — they are
+    called <strong>out-of-fold</strong> predictions.</p>
+  </div>
+
+  <h3>The leak this project had to avoid</h3>
+  <div class="plain"><span class="tag">In plain English</span>
+    <p style="margin:0">Football data is <em>nested</em>: actions sit inside possessions,
+    possessions sit inside matches. If you cut the data at random, two passes from the
+    same passage of play can land on opposite sides of the split. The model then sees
+    almost the same moment in training and testing — it has effectively been shown the
+    answer. Scores come out inflated, and nothing looks wrong.</p>
+  </div>
+
+  <figure>
+    <img src="figures/fig06_groupkfold.png">
+    <figcaption>Figure 8.1 — a random split (top) cuts through matches, so related actions
+      appear on both sides. Splitting by whole match (bottom) prevents it.</figcaption>
+  </figure>
+
+  <div class="tech"><span class="tag">Technically</span>
+    <p style="margin:0"><code>GroupKFold(groups=match_id)</code> — folds are constructed so
+    that all rows sharing a match identifier fall into the same fold. This is the
+    assessment's explicit question about the temporal and nested structure of the data,
+    and it is handled at the grouping level rather than by a time cutoff, because the
+    dependence here is <em>within</em> match rather than across the season.</p>
+  </div>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Ten</div>
+  <h2>Ablation — the honest way to ask "does this help?"</h2>
+
+  <div class="plain"><span class="tag">In plain English</span>
+    <p style="margin:0">You think a new piece of information is useful. The way to find
+    out is not to look at the model and see whether it seems to use it. It is to
+    <strong>train the same model twice</strong> — once with the information, once without
+    — on exactly the same data and exactly the same splits, then compare. The difference
+    is what the information is worth. Everything else is opinion.</p>
+  </div>
+
+  <div class="warn">
+    <span class="tag">The trap: feature importance is not evidence</span>
+    <p style="margin:0">Modelling libraries will happily tell you how "important" each
+    feature was. That measures how often the model <em>used</em> it — not how much it
+    <em>added</em>. Two features carrying the same information will both look important
+    while the second adds nothing. Chapter 21 describes a feature in this project that
+    ranked second of twenty and turned out to mean something entirely different from what
+    it appeared to. Ablation is the antidote.</p>
+  </div>
+
+  <div class="tech"><span class="tag">Technically</span>
+    <p style="margin:0">This is <strong>incremental validity</strong>: the gain in
+    out-of-sample performance from a feature set, holding the estimator, the rows and the
+    fold assignment fixed. Because the folds are identical, the comparison is paired and
+    the difference is not confounded by resampling noise.</p>
+  </div>
+
+  <p>Ablation is used three separate times in this project, and it is the backbone of
+  every claim in it: to test whether 360 space features help value a reception (Chapter
+  11), to measure what each layer of camera information is worth (Chapter 17), and to
+  isolate the run from the pass that found it (Chapter 17).</p>
+</div>
+
+<!-- ============================ PART III ============================ -->
+<div class="part">
+  <div class="lab">Part Three</div>
+  <h1>The Build, in Order</h1>
+  <div class="sub">Four attempts, two null results, and the number at each step that
+    triggered the next decision</div>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Eleven</div>
+  <h2>Build 1: the generic model, and why it was killed</h2>
+
+  <p>The first build was a conventional possession-value model: an expected-threat spine
+  with a line-breaking-pass metric on top. It worked. The leaderboard was full of
+  plausible names. It was also, in every important sense, the same project everybody
+  builds.</p>
+
+  <div class="decision">
+    <span class="tag">Decision — rejected outright</span>
+    <p>Two reasons, neither of them statistical:</p>
+    <ul style="margin-bottom:0">
+      <li>It used nothing specific to 360. Almost all of it could have been done with
+      event data alone, which makes the choice of dataset decorative.</li>
+      <li>It gave nothing football-specific to discuss. A metric that is merely competent
+      is hard to defend in conversation, because there is nothing in it that required a
+      decision.</li>
+    </ul>
+  </div>
+
+  <figure>
+    <img src="figures/fig10_journey.png">
+    <figcaption>Figure 10.1 — the path through the project. Each result is what triggered
+      the next decision.</figcaption>
+  </figure>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Twelve</div>
+  <h2>Builds 2 and 3: the space model and a null result</h2>
+
+  <p>The replacement was a space model: <strong>pitch control × threat</strong>. Pitch
+  control estimates who would reach each point of the pitch first; multiplying by threat
+  gives a surface of "dangerous space this team controls".</p>
+
+  <div class="plain"><span class="tag">Pitch control, in plain English</span>
+    <p style="margin:0">Every player exerts an influence over the ground near him, fading
+    with distance. At any point, whichever team's combined influence is greater is said to
+    control it. It is a smooth way of drawing "whose area is this".</p>
+  </div>
+  <div class="tech"><span class="tag">Technically</span>
+    <p style="margin:0">An isotropic Gaussian kernel per player (σ = 9 m); control at a
+    point is the attacking team's share of total influence. This is a <em>positional</em>
+    model, not Spearman's time-to-arrive formulation, because a single freeze-frame
+    carries <strong>no velocity</strong> — a physics-based model is not identifiable from
+    a still photograph. Stated as a limitation rather than glossed.</p>
+  </div>
+
+  <div class="warn">
+    <span class="tag">Second rejection — the metric was not a model</span>
+    <p style="margin:0">The resulting metric summed <code>control × threat</code> over a
+    player's receptions. Asked what was being modelled, the answer was: only the threat
+    layer. Pitch control was an <strong>unvalidated geometric heuristic</strong>, and the
+    metric predicted no outcome at all — there was nothing to check it against. A number
+    that cannot be wrong is not a measurement.</p>
+  </div>
+
+  <h3>Build 3: make it a real model, and accept the answer</h3>
+  <p>It was rebuilt with a genuine target — does this reception lead to a shot or a
+  final-third entry? — and an explicit test of whether the 360 space features beat a
+  location-only baseline. The result was agreed in advance to be reportable either way.</p>
+
+  <table>
+    <tr><th>Model</th><th>Features</th><th>AUC</th></tr>
+    <tr><td>Baseline</td><td>Location and geometry only</td><td>0.7853</td></tr>
+    <tr><td>+ 360 space</td><td>Openness, defenders behind, lane, control</td><td>0.7879</td></tr>
+    <tr><td colspan="2"><strong>Gain from the camera data</strong></td><td><strong>+0.0026</strong></td></tr>
+  </table>
+
+  <div class="warn">
+    <span class="tag">A null result — and what it actually said</span>
+    <p>Two models' <em>predictions</em> correlated with each other at <strong>0.97</strong>.
+    Note carefully what that correlation is between: it is model A against model B, row by
+    row — <em>not</em> a correlation with the outcome. Adding the freeze-frame barely
+    changed the number produced for any given reception. Worse, the gain was
+    <strong>negative</strong> in the final third and in tight space, exactly where it
+    should have been largest.</p>
+    <p style="margin:0"><strong>Interpretation:</strong> where you receive already tells
+    you how much space you have. The camera was adding almost nothing to this particular
+    question.</p>
+  </div>
+
+  <div class="decision">
+    <span class="tag">The decision this drove — the pivot</span>
+    <p style="margin:0">A negative result is information. If 360 adds nothing to valuing a
+    <em>reception</em>, then its value must lie where event data is genuinely blind — in
+    seeing a player who is <strong>not on the ball</strong>. That is the run, not the
+    reception. This null result is the reason the project became what it is.</p>
+  </div>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Thirteen</div>
+  <h2>The pivot: off-ball runs</h2>
+
+  <p>The reframed question: <em>event data credits whoever touches the ball; the player
+  who made the run gets nothing.</em> This is the scouting question from Chapter 1, and it
+  is the one question that cannot be approached without the camera at all.</p>
+
+  <p>It also changes what "adding value" means. In the reception model, 360 was competing
+  against location — and losing, because location already encodes space. In the run model,
+  360 is not competing with anything: <strong>without it there is no run to measure</strong>.
+  That distinction is developed properly in Chapter 15.</p>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Fourteen</div>
+  <h2>Reconstructing a run from two snapshots</h2>
+
+  <p>Recall the constraint: off-ball players in a freeze-frame are anonymous. You cannot
+  follow a named player from frame to frame. The method works around it.</p>
+
+  <figure>
+    <img src="figures/fig03_two_frames.png">
+    <figcaption>Figure 13.1 — the reconstruction. At release the receiver is an anonymous
+      dot; at receipt he is the tagged actor, named and exact. The difference is the run.</figcaption>
+  </figure>
+
+  <table>
+    <tr><th>Step</th><th>What we know</th><th>How certain</th></tr>
+    <tr><td>End of the run</td><td>The receipt frame tags the receiver as <code>actor</code> — named, exact position</td><td><strong>Measured</strong></td></tr>
+    <tr><td>Start of the run</td><td>He is somewhere in the release frame, as an anonymous team-mate dot</td><td><strong>Inferred</strong></td></tr>
+    <tr><td>The run</td><td>End minus start</td><td>As good as the inference</td></tr>
+  </table>
+
+  <h3>How the start is inferred</h3>
+  <p>Take the nearest team-mate dot to the reception point, subject to a physical
+  constraint: he cannot have covered more ground than a footballer can cover in the
+  ball's flight time. Pass duration is recorded, so the reachable distance is
+  <code>duration × 9.5 m/s</code>.</p>
+
+  <div class="codeblock">
+    <div class="cap">src/runs.py — inferring where the run started</div>
+<pre># candidate origins: team-mates in the release frame, excluding the passer
+mates = rel_locs[rel_tm &amp; ~rel_actor]
+
+d = np.hypot(mates[:, 0] - recv[0], mates[:, 1] - recv[1])
+order = np.argsort(d)
+origin = mates[order[0]]                       # nearest team-mate to where he received
+nearest_d, second_d = d[order[0]], d[order[1]]
+ambiguity = float(second_d / (nearest_d + 1e-6))   # &gt;1.5 = a confident match
+
+dur   = float(p["duration"])                   # how long the ball was in flight
+reach = dur * config.MAX_RUN_SPEED             # furthest he could possibly have come
+if nearest_d &gt; max(reach, 12.0):
+    continue                                   # not physically reachable -&gt; bad match</pre>
+    <div class="note">The two guards are the point. <code>ambiguity</code> is the ratio of
+      second-nearest to nearest: near 1.0 means two players were equally plausible and the
+      match is a coin flip. <code>reach</code> is the physical bound — a footballer cannot
+      cover more than <code>duration × 9.5 m/s</code> while the ball travels.</div>
+  </div>
+
+  <div class="tech"><span class="tag">What the two frames also give you, for free</span>
+    <p style="margin:0">Because defenders appear in <em>both</em> frames, the change in
+    the runner's situation is measurable: how far his nearest marker was before and after
+    (<em>separation gained</em>), how many defenders he ended up behind, and how enclosed
+    he was at each end. No event feed records any of this.</p>
+  </div>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Fifteen</div>
+  <h2>Quality gates: when a "run" is not a run</h2>
+
+  <p>An inference that is wrong sometimes is fine, provided you know which times and
+  discard them. Three gates are applied, and each one caught something real.</p>
+
+  <table>
+    <tr><th>Gate</th><th>Rule</th><th>Why</th><th>Effect</th></tr>
+    <tr><td>Ambiguity</td><td>The second-nearest team-mate must not be comparably close</td>
+        <td>If two players are equidistant from the reception point, the match is a coin flip</td><td>Flagged</td></tr>
+    <tr><td>Plausibility</td><td>Implied sprint ≤ 9.5 m/s</td>
+        <td>A faster "run" is a <em>wrong match</em>, not an athletic feat</td><td>2.0% removed</td></tr>
+    <tr><td>Pitch bounds</td><td>Start within 2 m of the pitch</td>
+        <td>StatsBomb clamps event locations but <strong>not</strong> freeze-frame positions — raw frames reach y = −7.8</td><td>860 removed</td></tr>
+  </table>
+
+  <div class="decision">
+    <span class="tag">The third gate came from looking at a picture</span>
+    <p style="margin:0">The pitch-bounds problem was not found in a test. It was found by
+    plotting a player's runs and noticing lines starting outside the touchline. The
+    underlying cause — that the two data sources have different clamping behaviour — is
+    documented nowhere obvious and would never have surfaced from summary statistics.
+    Small excursions (a player genuinely stepping over the line) are clipped; larger ones
+    are dropped, and the run vector is recomputed from the corrected start.</p>
+  </div>
+
+  <p><strong>93,202 runs reconstructed; 84% pass all three gates and are used.</strong></p>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Sixteen</div>
+  <h2>Building the possession-value model</h2>
+
+  <p>The model is the one introduced in Chapter 4:</p>
+  <pre>V(state) = P(shot within the next 5 SECONDS | ball position,
+             player position, defensive structure around both)</pre>
+
+  <h3>Why seconds and not "the next N actions"</h3>
+  <div class="decision">
+    <span class="tag">Decision — the clock</span>
+    <p style="margin:0">Earlier versions counted actions: "a shot within the next five
+    actions". Five short passes take three seconds; five duels take thirty. For judging
+    whether a <em>run</em> produced anything, that is not a clock at all. Every window in
+    the project was moved onto real time — shots within 5 s, retention over 10 s, loss
+    within 5 s.</p>
+  </div>
+
+  <div class="codeblock">
+    <div class="cap">src/outcomes.py — looking forward five seconds</div>
+<pre>lo  = np.searchsorted(et, t, side="left")            # events at or after this moment
+hi5 = np.searchsorted(et, t + SHOT_WINDOW, side="right")   # ... up to t + 5s
+w   = slice(lo, hi5)
+
+sh = (e_shot[w] == 1) &amp; (e_shot_team[w] == team)     # shots BY THIS TEAM in the window
+out["shot_5s"][i] = float(sh.any())                  # the model's target
+out["xg_5s"][i]   = float(e_xg[w][sh].sum())         # xG accumulated, not a probability</pre>
+    <div class="note">Events are pre-sorted by time per match, so
+      <code>np.searchsorted</code> finds the window boundaries in log time rather than
+      scanning. Note <code>e_shot_team[w] == team</code>: a shot by the <em>opponent</em>
+      inside the window is not a success, and forgetting that check would have quietly
+      rewarded turnovers.</div>
+  </div>
+
+  <h3>The question that had to be asked properly</h3>
+  <p>The natural claim is "the camera data improves the model by X". The first version of
+  that comparison was <strong>wrong</strong>, and it is worth spelling out how.</p>
+
+  <div class="warn">
+    <span class="tag">A mislabelled baseline</span>
+    <p style="margin:0">The "baseline" feature set was described in the code as <em>what
+    event data alone could produce</em>. It included the player's position — which, for
+    the pre-pass state, <strong>is the 360-inferred run origin</strong>. So the comparison
+    was never "with and without the camera"; it was "defensive-structure features versus
+    positions we could only know because of the camera". The reported gain both
+    understated the contribution and measured the wrong thing.</p>
+  </div>
+
+  <p>There is no "without 360" version of this project — without the camera there is no
+  run at all. So the honest question is not <em>whether</em> the camera helps, but
+  <strong>what each layer of information is worth</strong>. Four models, identical rows,
+  identical folds:</p>
+
+  <figure>
+    <img src="figures/fig07_ablation.png">
+    <figcaption>Figure 15.1 — the information tiers. Seeing the runner is worth roughly
+      twice what seeing the defence around him is.</figcaption>
+  </figure>
+
+  <table>
+    <tr><th>Layer</th><th>What it knows</th><th>AUC</th><th>Gain</th></tr>
+    <tr><td>1. Event data only</td><td>Where the ball is; how dangerous that spot is</td><td>0.9238</td><td>—</td></tr>
+    <tr><td>2. + where the runner is</td><td>His own position — <strong>needs the camera</strong></td><td>0.9375</td><td><strong>+0.0137</strong></td></tr>
+    <tr><td>3. + the defence around him</td><td>Nearest defender, how many goalside</td><td>0.9444</td><td>+0.0069</td></tr>
+    <tr><td>4. + how surrounded he is</td><td>Density, encirclement, block compactness</td><td>0.9450</td><td>+0.0006</td></tr>
+    <tr><td colspan="3"><strong>Total attributable to the camera</strong></td><td><strong>+0.0212</strong></td></tr>
+  </table>
+
+  <div class="decision">
+    <span class="tag">On the size of these numbers</span>
+    <p style="margin:0">A gain of 0.02 AUC is <em>small</em> in absolute terms, and it
+    should be described that way. Part of the reason is that the target is easy: if the
+    ball is in the box a shot usually follows, so a location-only model already reaches
+    0.92 and there is little headroom. The number worth defending is not the level but the
+    <strong>increment</strong> — and the largest single increment comes from seeing the
+    player who is not on the ball, which is precisely what the project set out to measure.</p>
+  </div>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Seventeen</div>
+  <h2>Separating the run from the pass</h2>
+
+  <p>With <code>V</code> fitted, the obvious metric is <code>ΔV = V(after) − V(before)</code>,
+  credited to the runner. The leaderboard looked reasonable — until Sergio Busquets
+  appeared tenth.</p>
+
+  <div class="warn">
+    <span class="tag">The tell</span>
+    <p style="margin:0">Busquets does not make off-ball runs; his game is receiving to feet
+    and distributing. He also had a <em>negative</em> expected-threat delta, meaning his
+    receptions on average made the team less dangerous by position. A metric that ranks
+    him tenth for off-ball running is measuring something other than off-ball running.</p>
+  </div>
+
+  <h3>The diagnosis</h3>
+  <p>ΔV spans the whole event: the ball moved <em>and</em> the player moved. Correlating
+  it against each component separately settles it.</p>
+
+  <table>
+    <tr><th>ΔV correlates with…</th><th>r</th><th>Which is</th></tr>
+    <tr><td>How far the <strong>ball</strong> travelled forward</td><td>+0.136</td><td>the pass</td></tr>
+    <tr><td>How far the <strong>player</strong> travelled forward</td><td>+0.146</td><td>the run</td></tr>
+  </table>
+
+  <p>Almost equal. ΔV is a genuinely <em>joint</em> measure of a pass-and-run, and
+  crediting it entirely to the receiver rewards players who are passed to often.</p>
+
+  <div class="decision">
+    <span class="tag">The fix — ablation again</span>
+    <p style="margin:0">Fit the outcome model twice on identical rows and folds: once
+    <em>without</em> the run features, once <em>with</em> them. What the run features add
+    is the run's own contribution, with the pass held constant. That difference —
+    <strong>+0.0197 AUC</strong> — becomes the headline metric. ΔV is still reported, but
+    labelled as joint, not as the run alone.</p>
+  </div>
+
+  <div class="codeblock">
+    <div class="cap">src/runs.py — isolating the run's contribution</div>
+<pre># where it happened -- the baseline any run metric must beat
+CONTEXT_FEATURES = ["origin_x", "origin_y", "receipt_x", "receipt_y",
+                    "threat_origin", "threat_receipt", "pass_length"]
+# what the RUN itself looked like
+RUN_FEATURES     = ["run_distance", "run_fwd", "run_lateral", "run_speed",
+                    "separation_gained", "space_at_receipt", ...]
+
+oof_ctx, m_ctx = _oof(CONTEXT_FEATURES)                    # same rows,
+oof_all, m_all = _oof(CONTEXT_FEATURES + RUN_FEATURES)     # same folds
+
+df["run_value_added"] = df["run_value"] - df["rv_context"] # per-run difference
+report["auc_lift"]    = m_all["auc"] - m_ctx["auc"]        # +0.0197</pre>
+    <div class="note">This is the pattern used three times in the project. Both models see
+      identical rows and identical fold assignments, so the comparison is paired and the
+      difference cannot be resampling noise. Everything the run features add, over and
+      above knowing where the move started and finished, is the run's own contribution.</div>
+  </div>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Eighteen</div>
+  <h2>What "value added" actually measures</h2>
+  <p class="lead">The question I was asked, and could not answer crisply until late:
+  <em>what exactly is this number?</em></p>
+
+  <p>It is worth being blunt about the confusion, because it is easy to fall into. Having
+  built a model that predicts a probability, the natural assumption is that the headline
+  metric <em>is</em> that probability. It is not. It sits one step further out, and the
+  distinction matters for every claim in this book.</p>
+
+  <h3>The two scouts</h3>
+  <div class="plain"><span class="tag">In plain English</span>
+    <p>Picture two scouts watching the same move on a radar screen.</p>
+    <ul style="margin-bottom:2mm">
+      <li><strong>Scout A</strong> sees only two dots — where the move started, and where
+      the ball ended up.</li>
+      <li><strong>Scout B</strong> sees those same two dots <strong>plus the run</strong>:
+      how far the receiver came, how fast, whether he shook off his marker, how many
+      defenders he got behind, how enclosed he was when the ball arrived.</li>
+    </ul>
+    <p>Both are asked the same question — <em>is this attack going somewhere?</em></p>
+    <p style="margin:0"><strong>Value added is how much Scout B's answer differs from Scout
+    A's.</strong> If seeing the run makes B markedly more optimistic, the movement
+    contributed something the geography alone does not explain. If B says the same as A,
+    the run was incidental and the position was doing all the work.</p>
+  </div>
+
+  <h3>Three quantities that are easy to confuse</h3>
+  <table>
+    <tr><th></th><th>Attached to</th><th>What it is</th></tr>
+    <tr><td><strong>xT</strong></td><td>a <strong>location</strong></td>
+        <td>A lookup. "The ball being here is worth X."</td></tr>
+    <tr><td><strong>V, and ΔV</strong></td><td>a <strong>situation</strong></td>
+        <td>A probability. "From here, a shot follows X% of the time."</td></tr>
+    <tr><td><strong>Value added</strong><br><em>(the headline)</em></td>
+        <td>the <strong>information the run carries</strong></td>
+        <td>A <strong>difference between two estimates</strong>. "Knowing how he moved
+        changes the forecast by X, versus knowing only where the move began and ended."</td></tr>
+  </table>
+
+  <div class="tech"><span class="tag">Technically</span>
+    <p style="margin:0">Per run, <code>value added =
+    P̂(y | context + run features) − P̂(y | context features only)</code>, both estimated
+    out-of-fold on identical rows and folds. This is an <strong>information-gain</strong>
+    quantity — the incremental predictive contribution of one feature block — not a
+    probability of any event. Consequences: it is <strong>signed</strong> (a run can make
+    the situation look worse than its position implies), it is <strong>not additive with
+    goals or xG</strong>, and its scale has no external referent. It answers "how much of
+    the outcome is explained by the manner of the movement rather than its geography".</p>
+  </div>
+
+  <div class="warn">
+    <span class="tag">What it is NOT</span>
+    <ul style="margin-bottom:0">
+      <li><strong>Not the probability of a goal.</strong> That is the xG family.</li>
+      <li><strong>Not the probability of a shot.</strong> That is <code>V</code>.</li>
+      <li><strong>Not a value attached to a place on the pitch.</strong> That is xT.</li>
+      <li><strong>Not a glorified restatement of "chance of scoring within five seconds".</strong>
+      That would be <code>ΔV</code>, which is reported separately and is explicitly
+      labelled as joint with the pass.</li>
+    </ul>
+  </div>
+
+  <h3>Why this definition makes the ranking target-sensitive</h3>
+  <p>Here is the consequence I did not appreciate until the metric was built, and it is the
+  most important caveat in this book.</p>
+
+  <p>Because value added measures <strong>the share of the outcome explained by the manner
+  of movement rather than by its geography</strong>, the split between "position's job" and
+  "the run's job" <em>depends on what you are asking the model to explain</em>. Change the
+  target, and you change that split.</p>
+
+  <p>Four configurations were tested. All four use the same reconstruction, the same rows
+  and the same paired-ablation discipline. Only the target changes.</p>
+
+  <table>
+    <tr><th>Design</th><th>Target</th><th>Lift</th><th>Top of the ranking</th></tr>
+    <tr><td>Plain ΔV</td><td>shot within 5s</td><td>—</td>
+        <td>Trincão, Pjanić, Dembélé <span style="color:#b23a48">(Busquets 12th)</span></td></tr>
+    <tr><td>Ablation</td><td>shot within 5s</td><td>+0.0057</td>
+        <td><span style="color:#b23a48">Alba, Pjanić, Zaire-Emery, Xhaka</span></td></tr>
+    <tr><td>Ablation</td><td>shot or box entry within 10s</td><td>+0.0117</td>
+        <td><span style="color:#b23a48">Coutinho, Pjanić, Busquets — Mbappé 53rd</span></td></tr>
+    <tr><td><strong>Ablation — shipped</strong></td><td><strong>shot or final-third entry within 5 actions</strong></td>
+        <td><strong>+0.0197</strong></td>
+        <td><strong>Mbappé, Boniface, Wirtz, Trincão</strong></td></tr>
+  </table>
+
+  <h4>Why the failures failed</h4>
+  <ul>
+    <li><strong>Plain ΔV</strong> is joint with the pass, and the final-third restriction
+    makes it worse rather than better: inside the final third ΔV correlates
+    <strong>+0.241</strong> with how far the <em>ball</em> moved against
+    <strong>+0.217</strong> with how far the <em>player</em> did. The pass dominates.</li>
+    <li><strong>Shot within 5 seconds</strong> leaves no headroom. A context-only model
+    already reaches <strong>AUC 0.948</strong>, because location near goal all but
+    determines whether a shot follows. There is nothing left for the run to explain.</li>
+    <li><strong>Shot or box entry within 10 seconds</strong> fails most instructively: the
+    run features stop describing run quality and start acting as a <strong>proxy for phase
+    of play</strong>. In settled possession everyone makes short shuffling movements and the
+    team is camped in the final third, so it reaches the box often. The model therefore
+    learns "short, slow, spacious movement is dangerous", which is why deep playmakers rise
+    and genuine runners fall to 48th–53rd.</li>
+  </ul>
+
+  <div class="warn">
+    <span class="tag">The honest position</span>
+    <p>The <strong>method</strong> is defensible: the two-frame reconstruction, the quality
+    gates, and paired ablation on identical rows and folds. The <strong>specific
+    ordering</strong> is target-dependent, and the shipped configuration was chosen because
+    its ordering has face validity — which is weak evidence, since I was selecting on the
+    thing I wanted to see.</p>
+    <p style="margin:0">So the metric should be used to <strong>shortlist profiles</strong>,
+    not to separate a player ranked eleventh from one ranked fourteenth. Said in the room
+    before it is asked, that is a statement of judgement. Discovered by a reviewer, it would
+    be a hole.</p>
+  </div>
+
+  <h4>What would fix it, rather than merely disclose it</h4>
+  <p>A <strong>counterfactual attribution</strong>: instead of a model residual, ask V
+  directly — <em>the ball arrives here, the defenders are where they are; how much less
+  dangerous is this if the player had stayed at his origin?</em> That holds the ball fixed
+  and varies only the player, so it cannot proxy for phase the way a residual can. It is
+  the one design not yet tested, and it is the first thing I would build next.</p>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Nineteen</div>
+  <h2>The final-third correction</h2>
+
+  <p>The isolated run metric was better, and still not right. Edmond Tapsoba — a
+  centre-back — scored close to Florian Wirtz.</p>
+
+  <table>
+    <tr><th>Tapsoba's run profile</th><th>Value</th></tr>
+    <tr><td>Runs</td><td>754</td></tr>
+    <tr><td>Mean reception position</td><td>the halfway line</td></tr>
+    <tr><td>Mean forward component</td><td><strong>−1.1 m</strong> (he moves backwards)</td></tr>
+    <tr><td>Runs received in behind</td><td>0.1%</td></tr>
+  </table>
+
+  <div class="warn">
+    <span class="tag">Predictiveness is not merit</span>
+    <p style="margin:0">The metric measures how much the run features <em>improve the
+    prediction</em>. A centre-back dropping into space reliably leads to retained
+    possession and eventual progression — so the features are genuinely informative, and
+    the model rewards them. Informative and admirable are different things.</p>
+  </div>
+
+  <div class="decision">
+    <span class="tag">Choosing the fix by testing it, not by asserting it</span>
+    <table style="margin-top:2mm;margin-bottom:0">
+      <tr><th>Restriction</th><th>Tapsoba's rank</th><th>Top of the table</th></tr>
+      <tr><td>None</td><td>10 of 59</td><td>contaminated by deep recycling</td></tr>
+      <tr><td>Attacking half (x ≥ 60)</td><td>15 of 59</td><td>still contaminated</td></tr>
+      <tr><td><strong>Final third (x ≥ 80)</strong></td><td><strong>34 of 59</strong></td><td><strong>an attacking-movement list</strong></td></tr>
+    </table>
+  </div>
+
+  <p>Off-ball running, as a scout means the phrase, happens in the final third. The
+  headline metric is computed there. The unrestricted version is retained in the output
+  under a different name, so the choice is visible rather than hidden.</p>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Twenty</div>
+  <h2>Compactness: a split result</h2>
+
+  <p>A fair criticism of the model at this stage: its entire description of pressure was
+  <em>distance to the nearest defender</em>. That number cannot distinguish one marker
+  three metres away, with open grass on every other side, from three defenders converging
+  at four metres each. Football-wise those are completely different situations.</p>
+
+  <figure>
+    <img src="figures/fig08_encirclement.png">
+    <figcaption>Figure 18.1 — encirclement measures the largest angular gap between nearby
+      defenders. A big gap is an escape route; no gap means bodies on every side.</figcaption>
+  </figure>
+
+  <table>
+    <tr><th>Feature</th><th>What it captures</th></tr>
+    <tr><td><code>encirclement</code></td><td>Largest angular gap between nearby defenders — is there a way out?</td></tr>
+    <tr><td><code>second_nearest_def</code></td><td>Marked by one man, or genuinely swarmed</td></tr>
+    <tr><td><code>block_spread</code></td><td>How stretched the defending unit is</td></tr>
+    <tr><td><code>encirclement_escaped</code></td><td>Whether the <em>run itself</em> broke out of an enclosure</td></tr>
+    <tr><td><code>def_within_5 / 10</code></td><td>Simple head-count of nearby defenders</td></tr>
+  </table>
+
+  <div class="codeblock">
+    <div class="cap">src/pitch.py — measuring whether he had a way out</div>
+<pre>near = defenders[d &lt;= near_radius]              # only defenders close enough to matter
+if len(near) &gt;= 2:
+    ang  = np.sort(np.arctan2(near[:, 1] - pt[1], near[:, 0] - pt[0]))
+    gaps = np.diff(ang)                        # angular gaps between neighbours
+    wrap = (ang[0] + 2 * np.pi) - ang[-1]      # the gap that closes the circle
+    largest = max(gaps.max(), wrap)
+    out["encirclement"] = 1.0 - largest / (2 * np.pi)</pre>
+    <div class="note">Take the bearing from the player to every nearby defender, sort
+      them, and find the biggest gap. A large gap is an escape route, so encirclement is
+      low. The <code>wrap</code> term matters: without it, a player with defenders at 10°
+      and 350° would look surrounded when in fact they are side by side.</div>
+  </div>
+
+  <div class="decision">
+    <span class="tag">The result — split, and reported that way</span>
+    <ul style="margin-bottom:0">
+      <li><strong>In the state model: null.</strong> Layer 4 of the ablation gained
+      +0.0006 — nothing. Knowing the ball's location and the nearest defender already
+      describes the state well enough.</li>
+      <li><strong>In the run model: a real gain.</strong> +0.0178 → <strong>+0.0197</strong>.
+      A run is a <em>change</em>, and compactness gives the model a language for describing
+      what changed.</li>
+    </ul>
+  </div>
+
+  <p>The head-count features — <code>def_within_5</code>, <code>def_within_10</code> and
+  the density delta — ranked 20th to 22nd of 23 and were <strong>removed</strong>. What
+  survived was the <em>geometry</em> of the defence, not the number of bodies in it. The
+  compactness features were also dropped from the production state model, since carrying
+  four extra features for +0.0006 is not defensible.</p>
+
+  <p>The interesting football residue: <strong>Patrik Schick receives enclosed on 77% of
+  his runs, Boniface 66%, Ekitike 61%</strong>. These are strikers doing their work in
+  traffic — a different profile from a player producing the same output in space, and one
+  that no existing statistic distinguishes.</p>
+</div>
+
+<!-- ============================ PART IV ============================ -->
+<div class="part">
+  <div class="lab">Part Four</div>
+  <h1>Results and Honesty</h1>
+  <div class="sub">What the numbers say, what they cannot say, and one that says the
+    opposite of what it appears to</div>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Twenty-One</div>
+  <h2>What the numbers say</h2>
+
+  <table>
+    <tr><th>#</th><th>Player</th><th>Club</th><th>Pos</th><th>Run Value /90</th><th>xG added /90</th><th>In behind /90</th></tr>
+    <tr><td>1</td><td>Kylian Mbappé</td><td>PSG</td><td>FWD</td><td>0.616</td><td>0.344</td><td>2.03</td></tr>
+    <tr><td>2</td><td>Victor Boniface</td><td>Leverkusen</td><td>FWD</td><td>0.590</td><td>0.287</td><td>1.23</td></tr>
+    <tr><td>3</td><td>Florian Wirtz</td><td>Leverkusen</td><td>MID</td><td>0.563</td><td>0.207</td><td>1.39</td></tr>
+    <tr><td>4</td><td>Francisco Trincão</td><td>Barcelona</td><td>MID</td><td>0.552</td><td>0.148</td><td>1.71</td></tr>
+    <tr><td>5</td><td>Martin Braithwaite</td><td>Barcelona</td><td>FWD</td><td>0.519</td><td>0.266</td><td>1.11</td></tr>
+    <tr><td>6</td><td>Jonas Hofmann</td><td>Leverkusen</td><td>MID</td><td>0.499</td><td>0.134</td><td>0.75</td></tr>
+    <tr><td>7</td><td>Neymar</td><td>PSG</td><td>MID</td><td>0.469</td><td>0.281</td><td>1.55</td></tr>
+    <tr><td>8</td><td>Patrik Schick</td><td>Leverkusen</td><td>FWD</td><td>0.459</td><td>0.300</td><td>0.80</td></tr>
+    <tr><td>9</td><td>Hugo Ekitike</td><td>PSG</td><td>FWD</td><td>0.454</td><td>0.171</td><td>0.79</td></tr>
+    <tr><td>10</td><td>Nathan Tella</td><td>Leverkusen</td><td>DEF</td><td>0.343</td><td>0.173</td><td>1.09</td></tr>
+  </table>
+  <p style="font-size:9pt;color:var(--muted);margin-top:-1mm">Scope: all players in the
+  four pooled club seasons with at least 600 minutes — 59 players.</p>
+
+  <h3>Three findings with football meaning</h3>
+
+  <h4>Runs on the counter are worth several times a run in settled play</h4>
+  <table>
+    <tr><th>Phase</th><th>Received in behind</th><th>Possession progresses</th></tr>
+    <tr><td>Counter-attack</td><td><strong>17.4%</strong></td><td><strong>64.9%</strong></td></tr>
+    <tr><td>Settled possession</td><td>2.7%</td><td>33.8%</td></tr>
+  </table>
+  <p>A player's value here therefore depends heavily on how his team plays. Buy a runner
+  into a side that never breaks quickly and you will not see the same player.</p>
+
+  <h4>Receiving enclosed is high-risk, high-reward</h4>
+  <table>
+    <tr><th>How enclosed on receipt (final third)</th><th>Shot within 5s</th><th>Lost within 5s</th></tr>
+    <tr><td>Clear escape side</td><td>6.1%</td><td>6.0%</td></tr>
+    <tr><td>Enclosed</td><td><strong>15.4%</strong></td><td><strong>19.9%</strong></td></tr>
+  </table>
+  <p>2.5× more likely to produce a shot, and 3.3× more likely to lose the ball. That is a
+  coaching trade-off, quantified.</p>
+
+  <h4>Messi ranks 26th of 59, and that is the metric working</h4>
+  <p>His runs average <strong>+0.03 m</strong> forward, against a pool average of +0.21 and
+  Mbappé's +1.42; he receives in behind on 1.8% of runs against Mbappé's 8.7%. Late-career
+  Messi receives to feet, static or dropping, and creates with the ball. The metric
+  measures one specific thing and is <strong>not a player rating</strong>. A metric that
+  ranked Messi first at everything would be a metric that measures nothing.</p>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Twenty-Two</div>
+  <h2>The feature that lies</h2>
+
+  <p>How spread out the defending team is ranked <strong>second of twenty features</strong>
+  by importance — above how much space the receiver had. The obvious headline wrote
+  itself: <em>runs are worth more against a stretched defence.</em></p>
+
+  <p>It is the opposite, by a factor of 7.6.</p>
+
+  <figure>
+    <img src="figures/fig09_block_spread_trap.png">
+    <figcaption>Figure 20.1 — the left panel looks like a finding. The right panel is the
+      explanation: mean distance up the pitch falls as the block "stretches".</figcaption>
+  </figure>
+
+  <div class="warn">
+    <span class="tag">Why it happens</span>
+    <p style="margin:0">A defence is compact <strong>because</strong> the ball is deep in
+    its own box — everyone has collapsed around it. Even within the final third, defensive
+    spread still correlates <strong>−0.43</strong> with how advanced the reception is. The
+    feature is largely a restatement of "how close to goal this is", and the high shot rate
+    follows from the ball being eight yards out, not from the shape of the block.</p>
+  </div>
+
+  <div class="decision">
+    <span class="tag">What was done with it</span>
+    <p style="margin:0">The feature is <strong>kept</strong>, because it genuinely improves
+    prediction. It is <strong>not</strong> presented as a football finding. Had it gone in
+    unchecked, the write-up would have stated something backwards and it would not have
+    survived a single question. This is the concrete case behind the warning in Chapter 10:
+    a high importance score means a model used a feature, not that the feature means what
+    it appears to mean.</p>
+  </div>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Twenty-Three</div>
+  <h2>What breaks it</h2>
+
+  <h3>Selection bias — the one to say first</h3>
+  <div class="warn">
+    <p style="margin:0">We only observe runs that <strong>received the ball</strong>. The
+    decoy run that dragged a centre-back across and was never picked out is
+    <strong>invisible</strong>. This measures <em>runs that got the ball</em>, not all
+    off-ball movement, and it systematically under-credits selfless runners. Full tracking
+    data would fix it, because every run is observed regardless of whether the pass came.</p>
+  </div>
+
+  <h3>Who the metric treats unfairly</h3>
+  <table>
+    <tr><th>Treated unfairly</th><th>Why</th><th>What would fix it</th></tr>
+    <tr><td>Selfless decoy runners</td><td>Their runs are never observed</td><td>Tracking data</td></tr>
+    <tr><td>Deep-lying players</td><td>The headline is final-third only, by construction</td><td>A separate build-up version</td></tr>
+    <tr><td>Players in slow teams</td><td>Counter-attacking runs carry far more value</td><td>Possession- and phase-adjustment</td></tr>
+    <tr><td>Players with few minutes</td><td>The 600-minute floor excludes them outright</td><td>Empirical-Bayes shrinkage</td></tr>
+  </table>
+
+  <h3>Technical limitations</h3>
+  <ul>
+    <li><strong>The origin is inferred</strong>, not observed. Gated, but not certain — and
+    the gate is binary rather than a per-run probability.</li>
+    <li><strong>Ball-flight window only.</strong> We see the movement during the pass, not
+    the whole run, and there is no velocity, so acceleration and the build-up before
+    release are invisible.</li>
+    <li><strong>No uncertainty quantification.</strong> The ranking carries no confidence
+    intervals. Two players a place apart cannot be meaningfully separated.</li>
+    <li><strong>Accumulated xG is not a probability.</strong> xG within five seconds sums
+    every shot in the window, so a rebound sequence can exceed 1.0 — five runs of 61,823 do,
+    the maximum being 1.478. It is also not additive across players, since two runners can
+    fall inside the same window.</li>
+  </ul>
+</div>
+
+<div class="chapter">
+  <div class="chnum">Chapter Twenty-Four</div>
+  <h2>What I would do next</h2>
+
+  <table>
+    <tr><th>Priority</th><th>Addition</th><th>What it fixes</th></tr>
+    <tr><td>1</td><td>Bootstrapped confidence intervals on the ranking</td><td>There is currently no uncertainty around player order — the single biggest gap</td></tr>
+    <tr><td>2</td><td>A conceding-side term in V</td><td>ΔV is not yet risk-adjusted; a run that invites a counter is not penalised</td></tr>
+    <tr><td>3</td><td>A per-run match probability for the inferred origin</td><td>Replaces a binary keep/drop gate with a weight</td></tr>
+    <tr><td>4</td><td>Possession- and phase-adjustment</td><td>Removes the team-style confound identified in Chapter 20</td></tr>
+    <tr><td>5</td><td>Tracking data</td><td>Removes the selection bias entirely and supplies velocity</td></tr>
+    <tr><td>6</td><td><strong>A logistic-regression baseline</strong></td><td>Never run. It is cheap, and it would quantify how much the tree model's flexibility is actually buying over a linear fit — an omission, not a decision</td></tr>
+  </table>
+
+  <h3>The thing this project actually demonstrates</h3>
+  <p>Not that the model is finished — it plainly is not. What it demonstrates is a way of
+  working: <strong>every claim attached to a test, every test run on identical rows and
+  folds, and every negative result reported.</strong> Two of the four builds produced
+  nulls. One feature turned out to mean the reverse of what it looked like. Those are in
+  the record because they are the reason the surviving claims are believable.</p>
+</div>
+
+<!-- ============================ APPENDICES ============================ -->
+<div class="chapter">
+  <h2>Appendix A — Glossary</h2>
+  <table>
+    <tr><th>Term</th><th>Meaning in one sentence</th></tr>
+    <tr><td><strong>Ablation</strong></td><td>Training the same model with and without a feature set, on identical rows and folds, to measure what those features are worth.</td></tr>
+    <tr><td><strong>AUC</strong></td><td>The probability the model scores a positive case above a negative one; 0.5 is a coin flip.</td></tr>
+    <tr><td><strong>Bellman equation</strong></td><td>The recursive statement that a state's value equals its immediate reward plus the value of where it leads.</td></tr>
+    <tr><td><strong>Brier score</strong></td><td>Mean squared error of predicted probabilities; lower is better.</td></tr>
+    <tr><td><strong>Calibration</strong></td><td>Whether events called 5% likely happen about 5% of the time.</td></tr>
+    <tr><td><strong>Encirclement</strong></td><td>1 minus the largest angular gap between nearby defenders; 0 means an escape side, towards 1 means surrounded.</td></tr>
+    <tr><td><strong>Freeze-frame</strong></td><td>The positions of all visible players at the instant of an event.</td></tr>
+    <tr><td><strong>Gradient boosting</strong></td><td>A stack of small decision trees, each fitted to correct the errors of those before it.</td></tr>
+    <tr><td><strong>GroupKFold</strong></td><td>Cross-validation where all rows sharing a group (here, a match) stay in the same fold.</td></tr>
+    <tr><td><strong>Leakage</strong></td><td>Information from the test set reaching the model during training, inflating scores.</td></tr>
+    <tr><td><strong>Markov chain</strong></td><td>A process where the next state depends only on the current one, not the history.</td></tr>
+    <tr><td><strong>Out-of-fold</strong></td><td>A prediction made by a model that never saw that row in training.</td></tr>
+    <tr><td><strong>Pitch control</strong></td><td>A surface estimating which team would win the ball at each point.</td></tr>
+    <tr><td><strong>Possession value</strong></td><td>Any number expressing how good the current situation is for the team in possession.</td></tr>
+    <tr><td><strong>Value iteration</strong></td><td>Solving a Bellman equation by applying it repeatedly until the values stop changing.</td></tr>
+    <tr><td><strong>xG</strong></td><td>The probability a given shot becomes a goal.</td></tr>
+    <tr><td><strong>xT</strong></td><td>A pitch-cell value table built by value iteration; sees only where the ball is.</td></tr>
+    <tr><td><strong>ΔV</strong></td><td>V(after) − V(before): the change in possession value across an action.</td></tr>
+  </table>
+</div>
+
+<div class="chapter">
+  <h2>Appendix B — Every number in one place</h2>
+
+  <h3>Data</h3>
+  <table>
+    <tr><td>Matches pooled</td><td><strong>127</strong> (Barcelona 20/21, PSG 21/22, PSG 22/23, Leverkusen 23/24)</td></tr>
+    <tr><td>Events</td><td>508,051</td></tr>
+    <tr><td>Runs reconstructed</td><td><strong>93,202</strong></td></tr>
+    <tr><td>Usable after gates</td><td><strong>84%</strong> (2.0% rejected as impossible sprints; 860 as off-pitch)</td></tr>
+    <tr><td>Qualified players</td><td>59 (≥ 600 minutes)</td></tr>
+    <tr><td>Base rate: shot within 5s</td><td>3.3%</td></tr>
+  </table>
+
+  <h3>Models</h3>
+  <table>
+    <tr><th>Model</th><th>Comparison</th><th>Result</th></tr>
+    <tr><td>Possession value V</td><td>Layer 1 (event only) → layer 3</td><td>0.9238 → 0.9444 (<strong>+0.0212</strong>)</td></tr>
+    <tr><td>Possession value V</td><td>Brier, +360 vs baseline</td><td>0.0237 vs 0.0243</td></tr>
+    <tr><td>Compactness in V</td><td>Layer 3 → layer 4</td><td>+0.0006 (<strong>null</strong>)</td></tr>
+    <tr><td>Run features</td><td>Context only → context + run</td><td>0.7806 → 0.8002 (<strong>+0.0197</strong>)</td></tr>
+    <tr><td>Reception model (abandoned)</td><td>Location only → + 360 space</td><td>0.7853 → 0.7879 (<strong>+0.0026</strong>, null)</td></tr>
+  </table>
+
+  <h3>Findings</h3>
+  <table>
+    <tr><td>Counter vs settled: received in behind</td><td>17.4% vs 2.7%</td></tr>
+    <tr><td>Counter vs settled: possession progresses</td><td>64.9% vs 33.8%</td></tr>
+    <tr><td>Enclosed vs clear: shot within 5s</td><td>15.4% vs 6.1%</td></tr>
+    <tr><td>Enclosed vs clear: lost within 5s</td><td>19.9% vs 6.0%</td></tr>
+    <tr><td>Compact vs stretched block (final third)</td><td>23.9% vs 3.1% — <em>a depth proxy, not a finding</em></td></tr>
+    <tr><td>ΔV correlation with ball / player movement</td><td>+0.136 / +0.146</td></tr>
+  </table>
+</div>
+
+<div class="chapter">
+  <h2>Appendix C — Code map</h2>
+  <table>
+    <tr><th>File</th><th>What it does</th><th>Chapter</th></tr>
+    <tr><td><code>config.py</code></td><td>The four competitions and every parameter</td><td>3</td></tr>
+    <tr><td><code>build_runs.py</code></td><td>The whole pipeline, raw data to metrics</td><td>—</td></tr>
+    <tr><td><code>src/data.py</code></td><td>StatsBomb loaders, per-competition caching, minutes</td><td>2, 3</td></tr>
+    <tr><td><code>src/threat.py</code></td><td>The xT surface — Markov chain and value iteration</td><td>5</td></tr>
+    <tr><td><code>src/runs.py</code></td><td><strong>Run reconstruction</strong>, quality gates, the run-value model</td><td>13, 14, 16</td></tr>
+    <tr><td><code>src/value.py</code></td><td>V(state) and ΔV</td><td>15</td></tr>
+    <tr><td><code>src/outcomes.py</code></td><td>Time-window outcomes: shots, retention, loss, value lost</td><td>15</td></tr>
+    <tr><td><code>src/ablation.py</code></td><td>The four information tiers</td><td>9, 15</td></tr>
+    <tr><td><code>src/pitch.py</code></td><td>Geometry, freeze-frame parsing, compactness</td><td>13, 18</td></tr>
+    <tr><td><code>src/run_metrics.py</code></td><td>Player and team aggregation, situational splits</td><td>17, 19</td></tr>
+    <tr><td><code>src/reception.py</code></td><td>The abandoned reception model — kept for the null result</td><td>11</td></tr>
+    <tr><td><code>src/space.py</code></td><td>Pitch control and EPV — supporting</td><td>11</td></tr>
+    <tr><td><code>src/viz.py</code></td><td>Pitch maps: comets for passes, dotted for runs</td><td>—</td></tr>
+    <tr><td><code>app/</code></td><td>The Streamlit application</td><td>—</td></tr>
+  </table>
+
+  <p style="margin-top:6mm;font-size:9pt;color:var(--muted)">
+    Data: StatsBomb Open Data, used under the StatsBomb open-data user agreement
+    (non-commercial / research use; attribution required).
+  </p>
+</div>
+
+<div class="chapter">
+  <h2>Appendix D — The parameters, and what each one does</h2>
+  <p>Every tunable number in the project, in one place, with the reasoning. All live in
+  <code>config.py</code> unless noted.</p>
+
+  <h3>The model</h3>
+  <table>
+    <tr><th>Parameter</th><th>Value</th><th>Meaning</th><th>Consequence if changed</th></tr>
+    <tr><td><code>n_estimators</code></td><td>350</td><td>Boosting rounds</td><td>Fewer underfits; many more mostly costs time</td></tr>
+    <tr><td><code>learning_rate</code></td><td>0.05</td><td>Trust per round</td><td>Higher trains faster and generalises worse</td></tr>
+    <tr><td><code>num_leaves</code></td><td>31</td><td>Tree complexity</td><td>The main overfitting dial in leaf-wise growth</td></tr>
+    <tr><td><code>min_child_samples</code></td><td>60</td><td>Minimum rows behind a rule</td><td>Lower invents rules from noise — dangerous at a 3.3% base rate</td></tr>
+    <tr><td><code>subsample</code> / <code>colsample_bytree</code></td><td>0.8 / 0.8</td><td>Row / feature sampling</td><td>Decorrelates trees; 1.0 makes them near-identical</td></tr>
+    <tr><td><code>n_splits</code></td><td>5</td><td>Cross-validation folds</td><td>More folds means more training data per fit and more compute</td></tr>
+  </table>
+
+  <h3>The football decisions</h3>
+  <table>
+    <tr><th>Parameter</th><th>Value</th><th>What it decides</th><th>Why this value</th></tr>
+    <tr><td><code>SHOT_WINDOW</code></td><td>5 s</td><td>The prediction target</td><td>Long enough for a run to pay off, short enough to still be about that run</td></tr>
+    <tr><td><code>RETAIN_WINDOW</code></td><td>10 s</td><td>Retention outcome</td><td>Roughly one passage of play</td></tr>
+    <tr><td><code>MAX_RUN_SPEED</code></td><td>9.5 m/s</td><td>Plausibility gate</td><td>Above elite sprint speed — anything faster is a wrong match, not an athlete</td></tr>
+    <tr><td><code>MIN_RUN_DISTANCE</code></td><td>2 m</td><td>What counts as a run</td><td>Below this the receiver did not meaningfully move</td></tr>
+    <tr><td><code>MATCH_AMBIGUITY</code></td><td>1.5</td><td>Origin-match confidence</td><td>Second-nearest must be 1.5× further than nearest</td></tr>
+    <tr><td><code>PITCH_TOLERANCE</code></td><td>2 m</td><td>Off-pitch allowance</td><td>A player can legitimately step over the line; 7 m out is camera error</td></tr>
+    <tr><td><code>FINAL_THIRD_X</code></td><td>80</td><td>Where the headline metric applies</td><td>Chosen empirically in Chapter 19, not by assertion</td></tr>
+    <tr><td><code>MIN_MINUTES</code></td><td>600</td><td>Leaderboard qualification</td><td>A crude stand-in for shrinkage; named as a shortcut</td></tr>
+    <tr><td><code>PC_SIGMA</code></td><td>9 m</td><td>Pitch-control radius (legacy)</td><td>Never tuned — a stated weakness of the abandoned space model</td></tr>
+  </table>
+
+  <div class="warn">
+    <span class="tag">Which of these are actually load-bearing</span>
+    <p style="margin:0">Most are not. The ones that would change conclusions if moved are
+    <code>SHOT_WINDOW</code> (the whole target definition), <code>FINAL_THIRD_X</code> (it
+    changed the leaderboard materially, which is why it was chosen by testing) and
+    <code>MAX_RUN_SPEED</code> (it decides what counts as data at all). The model
+    hyperparameters are conventional and the results are not sensitive to them. None of
+    these have been formally sensitivity-tested, which is listed as future work.</p>
+  </div>
+</div>

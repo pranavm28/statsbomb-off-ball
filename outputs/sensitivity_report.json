@@ -1,0 +1,39 @@
+{
+  "what_it_measures": "Information gain: how much the predicted probability of the possession progressing changes once the model can see HOW the player moved, versus seeing only where the move started and ended. It is a DIFFERENCE between two informed estimates, not a probability of any event.",
+  "why_target_sensitive": "Because the metric is the share of the outcome explained by the manner of movement rather than its geography, changing the target changes what counts as position-explained vs run-explained. The instability is inherent to an information-gain quantity, not an implementation fault.",
+  "configurations_tested": [
+    {
+      "design": "Plain delta V (V_after - V_before)",
+      "target": "shot within 5s",
+      "lift": null,
+      "top": "Trincao, Pjanic, Dembele",
+      "busquets_rank": 12,
+      "verdict": "REJECTED - joint with the pass; corr(dV, ball forward)=+0.241 exceeds corr(dV, run forward)=+0.217 inside the final third"
+    },
+    {
+      "design": "Ablation (context vs context+run)",
+      "target": "shot within 5s",
+      "lift": 0.0057,
+      "top": "Alba, Pjanic, Zaire-Emery, Xhaka, Tapsoba",
+      "busquets_rank": 26,
+      "verdict": "REJECTED - context-only model already at AUC 0.9478, so no headroom; leaderboard dominated by defenders and deep midfielders"
+    },
+    {
+      "design": "Ablation (context vs context+run)",
+      "target": "shot or box entry within 10s",
+      "lift": 0.0117,
+      "top": "Coutinho, Pjanic, Busquets",
+      "busquets_rank": 3,
+      "verdict": "REJECTED - run features proxy for PHASE of play; settled possession rewarded. Mbappe 53rd, Wirtz 51st, Boniface 48th"
+    },
+    {
+      "design": "Ablation (context vs context+run)  <= SHIPPED",
+      "target": "shot or final-third entry within 5 actions",
+      "lift": 0.0197,
+      "top": "Mbappe, Boniface, Wirtz, Trincao, Braithwaite",
+      "busquets_rank": null,
+      "verdict": "SHIPPED - the only configuration whose ordering has face validity. Selected on that basis, which is weak evidence and is reported as such"
+    }
+  ],
+  "honest_position": "The METHOD is defensible: two-frame reconstruction, quality gates, paired ablation on identical rows and folds. The specific ORDERING is target-dependent and should be used to shortlist profiles, not to separate adjacent ranks."
+}
