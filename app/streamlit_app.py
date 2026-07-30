@@ -14,7 +14,6 @@ Run:  streamlit run app/streamlit_app.py    (from the project root)
 from __future__ import annotations
 import sys, json
 from pathlib import Path
-import numpy as np
 import pandas as pd
 import streamlit as st
 
@@ -67,21 +66,6 @@ def load_minutes():
 def load_json(name):
     fp = config.OUTPUTS / name
     return json.load(open(fp)) if fp.exists() else {}
-
-@st.cache_data(show_spinner=False)
-def load_actions():
-    """On-ball action maps.
-
-    Prefers the slim, committed file (only the columns the maps draw, passes and
-    carries only -- 1.9 MB instead of 55 MB) and falls back to the full action
-    table if a local build has produced one.
-    """
-    for name in ("actions_app.parquet", "actions.parquet"):
-        fp = config.DATA_PROC / name
-        if fp.exists():
-            return pd.read_parquet(fp)
-    return None
-
 
 def pct_color(p):
     return (viz.T_ELITE if p >= 80 else viz.T_ABOVE if p >= 60 else
@@ -167,22 +151,6 @@ elif page == "Player profile":
                                        "sep_gained": "{:.2f}", "progress_rate": "{:.3f}",
                                        "runs": "{:,.0f}", "in_behind": "{:.0f}"}),
                      use_container_width=True, hide_index=True)
-
-    acts = load_actions()
-    if acts is not None:
-        st.markdown("#### On-ball context "
-                    "<span style='color:#7a8087;font-size:12px'>(what he does once he has "
-                    "it — passes as comets, carries dotted)</span>", unsafe_allow_html=True)
-        c1, c2 = st.columns(2)
-        kind = c1.selectbox("Action", ["Pass", "Carry"])
-        cby = c2.selectbox("Colour by", ["pressure_label", "space_label"],
-                           format_func=lambda x: {"pressure_label": "Pressure on the ball",
-                                                  "space_label": "Into space / traffic"}[x])
-        a_p = acts[acts["player"] == who]
-        if len(a_p):
-            st.pyplot(runs_page.action_map(a_p, kind, cby), use_container_width=True)
-        else:
-            st.caption("No on-ball actions found for this player in the action table.")
 
 
 # ==================================================================== TEAMS

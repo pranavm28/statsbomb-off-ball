@@ -450,29 +450,3 @@ def render(runs: pd.DataFrame, players: pd.DataFrame, teams: pd.DataFrame,
                    f"{config.MAX_RUN_SPEED} m/s. Only runs passing both are used.")
 
 
-def action_map(a_player: pd.DataFrame, kind: str, color_by: str):
-    """
-    On-ball context for a runner: what he does once he actually has the ball.
-    Passes are comets, carries are dotted -- the house convention, so a reader
-    never has to ask which is which.
-    """
-    d = a_player[(a_player["type"] == kind) & a_player["success"]].dropna(
-        subset=["start_x", "start_y", "end_x", "end_y"])
-    fig, ax, pitch = viz.new_pitch(figsize=(9, 6))
-    palette = viz.PRESSURE_COLOURS if color_by == "pressure_label" else viz.SPACE_COLOURS
-    items = []
-    for lab, col in palette.items():
-        s = d[d[color_by].astype(str) == lab]
-        if not len(s):
-            continue
-        if kind == "Pass":
-            viz.comet(pitch, ax, s["start_x"], s["start_y"], s["end_x"], s["end_y"],
-                      col, lw=2.9)
-            items.append((f"{lab}: {len(s)}", col, "comet"))
-        else:
-            viz.dotted(pitch, ax, s["start_x"], s["start_y"], s["end_x"], s["end_y"], col)
-            items.append((f"{lab}: {len(s)}", col, "dotted"))
-    viz.legend(ax, items)
-    lab = color_by.replace("_label", "").replace("_", " ")
-    viz.title(fig, f"{kind}es  |  by {lab}", "")
-    return fig

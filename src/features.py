@@ -65,12 +65,6 @@ def build_action_table(events: pd.DataFrame, frames: pd.DataFrame, threat_grid) 
 
     ev = _attach_360(ev, frames)
 
-    # human-readable labels for the action maps -------------------------------
-    ev["pressure_label"] = pd.cut(
-        ev["def_dist"], bins=[-1, config.PRESSURE_RADIUS, 6.0, 1e9],
-        labels=["Under pressure", "Contested", "Free"])
-    ev["space_label"] = np.where(ev["receiver_space"].fillna(0) >= config.SPACE_RADIUS,
-                                 "Into space", "Into traffic")
     ev["line_break"] = (ev["progressive"] & (ev["defenders_bypassed"].fillna(0) >= 1))
     return ev.reset_index(drop=True)
 

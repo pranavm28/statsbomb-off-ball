@@ -62,8 +62,6 @@ PC_GRID_NY_VIZ = 48
 # ---------------------------------------------------------------------------
 # Metric parameters
 # ---------------------------------------------------------------------------
-SPACE_RADIUS = 5.0        # a receiver is "in space" if nearest opp > this (m)
-PRESSURE_RADIUS = 3.0     # "under pressure" if nearest opp < this (m)
 PROGRESSIVE_MIN_GAIN = 5.0
 PACKING_BAND = 6.0        # +/- metres to count a bypassed defender (line-break maps)
 

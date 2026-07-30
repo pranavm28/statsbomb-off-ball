@@ -49,18 +49,23 @@ ATK = BRAND         # team in possession
 DEF = "#ff5959"     # defending team
 BALL = "#ffd700"
 
-# pressure / space label colours for action maps
-PRESSURE_COLOURS = {"Under pressure": "#ff5959", "Contested": "#e0b64a", "Free": "#00ff7f"}
-SPACE_COLOURS    = {"Into space": "#24a8ff", "Into traffic": "#9a9a9a"}
-
 
 def _register_font():
-    for p in ["/System/Library/Fonts/Supplemental/Arial Rounded Bold.ttf",
-              str(Path.home() / "Desktop/Data/player-print/fonts/Arial Rounded Bold.ttf")]:
-        if Path(p).exists():
-            font_manager.fontManager.addfont(p)
+    """
+    Use Arial Rounded Bold where it is installed, otherwise fall back cleanly.
+
+    The font is licensed, so it is deliberately not shipped in this repo. A local
+    fonts/ directory is checked first for anyone who has their own copy; failing
+    that we take the macOS system location; failing that DejaVu Sans, which every
+    matplotlib install has. Charts render either way, only the typeface changes.
+    """
+    root = Path(__file__).resolve().parents[1]
+    for p in [root / "fonts" / "Arial Rounded Bold.ttf",
+              Path("/System/Library/Fonts/Supplemental/Arial Rounded Bold.ttf")]:
+        if p.exists():
+            font_manager.fontManager.addfont(str(p))
             logging.getLogger("matplotlib.font_manager").setLevel(logging.ERROR)
-            return font_manager.FontProperties(fname=p).get_name()
+            return font_manager.FontProperties(fname=str(p)).get_name()
     return "DejaVu Sans"
 
 FONT = _register_font()

@@ -8,7 +8,6 @@ data/raw/
 data/processed/*
 !data/processed/runs.parquet
 !data/processed/minutes.parquet
-!data/processed/actions_app.parquet
 !data/processed/frames_app.parquet
 !data/processed/threat_grid.npy
 
