@@ -24,6 +24,11 @@ outputs/figures/
 # under §5 of the brief: code+README, the write-up, Part 2, the AI log, Part 3.
 docs/
 
+# The earlier markdown write-up. Superseded by the 3-page PDF/DOCX that is emailed,
+# and it still quoted 127 matches, "85% usable" and +0.0071 -- the discredited
+# figure. Two write-ups that disagree is worse than one. Kept on disk.
+WRITEUP.md
+
 # Personal preparation material — not part of the deliverable
 walkthrough/
 
