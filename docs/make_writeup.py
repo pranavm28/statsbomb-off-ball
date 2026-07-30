@@ -411,25 +411,23 @@ def content(d: dict) -> list:
             f"the kept ones rest on a nearest-teammate assumption that will occasionally pick the "
             f"wrong player in a crowded box."]),
 
-        ("h2", "10", "AI usage, in short"),
-        ("p", "Full log with representative prompts, accepted/modified/rejected detail and the "
-              "errors I caught is in `AI_USAGE.md` in the repo. Summary:"),
-        ("table", ["Area", "What the assistant did", "What I did"], [
-            ["Framing & metric", "Sketched options once I set the direction",
-             "Mine: model off-ball runs as a supervised, xG-style problem rather than a grid"],
-            ["Model family", "Recommended LightGBM + GroupKFold",
-             "Accepted after checking the leakage argument held for nested events"],
-            ["Features", "Drafted the geometry (encirclement, block spread)",
-             "Rejected the density counters; required the ablation before believing any of it"],
-            ["Verification", "Produced the first, flattering comparison",
-             f"Caught the mislabelled 360 baseline (the \"no-360\" model contained a 360 feature) "
-             f"— true gain +{d['gain360']:.4f}, not +{d['naive_lift']:.4f}"],
-            ["Football sense", "Proposed reading block spread as \"stretched = valuable\"",
-             "Caught the sign: the data says the opposite by 7.6×; it is a depth proxy"],
-            ["Plotting & prose", "First drafts",
-             "Restyled to my own conventions; fixed runs drawn off-pitch (360 frames are not "
-             "clamped)"]], [0, 0, 0]),
-
+        ("h2", "10", "AI usage"),
+        ("p", "The full log is `AI_USAGE.md` in the repo: which tools, where they were used, "
+              "representative prompts, and for each substantive step what I accepted, what I "
+              "modified and what I rejected. The short version: the framing and the metric "
+              "concept are mine — model off-ball runs as a supervised, xG-style problem rather "
+              "than a grid. The assistant recommended LightGBM with `GroupKFold` and drafted the "
+              "defensive geometry; I rejected the density counters and required the ablation "
+              "before believing any of it. The two interventions that changed the result were "
+              "both verification, not generation:"),
+        ("bullets", [
+            f"**A mislabelled baseline.** The first \"without 360\" comparison contained a 360 "
+            f"feature — the runner's own position — which flattered the result by "
+            f"+{d['naive_lift']:.4f} AUC. Replacing it with the four-tier ablation gave the real "
+            f"figure, **+{d['gain360']:.4f}**.",
+            "**A feature read backwards.** Block spread was about to be reported as \"a stretched "
+            "defence is more valuable\". Checked against the data, it says the opposite by 7.6× — "
+            "it is a depth proxy, not a width one. It stayed in the model and out of the story."]),
         ("foot", "Data: **StatsBomb Open Data**, accessed via `statsbombpy`, used under the "
                  "StatsBomb open-data user agreement for non-commercial research. Data provided "
                  "by StatsBomb — with thanks.  ·  Reproduce: `pip install -r requirements.txt` "
