@@ -179,8 +179,34 @@ def _run_explorer(runs: pd.DataFrame):
             st.pyplot(fig, use_container_width=True)
     with right:
         st.markdown("#### The run")
-        st.metric("Possession value added (ΔV)", f'{row["delta_V"]:+.3f}')
-        st.caption("P(shot within 5s) after the run minus before it")
+
+        # THE number for this run: the per-run atom that sums into Run Value / 90.
+        # Shown first, and above dV, because dV is the pass and the run jointly and
+        # is easily mistaken for the run's own credit.
+        rva = row.get("run_value_added", float("nan"))
+        st.metric("Run Value — this run", f"{rva:+.3f}" if pd.notna(rva) else "—")
+        ctx, full = row.get("rv_context", float("nan")), row.get("run_value", float("nan"))
+        if pd.notna(ctx) and pd.notna(full):
+            g, h = st.columns(2)
+            g.metric("From where he ran", f"{ctx:.3f}")
+            g.caption("start and end points only")
+            h.metric("Once you see how", f"{full:.3f}")
+            h.caption("+ the movement itself")
+        st.caption("P(possession progresses) once the model can see **how** he moved, minus the "
+                   "same model knowing only **where** he ran between. The difference is this "
+                   "run's credit — and it is exactly what sums into **Run Value / 90**.")
+
+        in_f3 = float(row["receipt_x"]) >= config.FINAL_THIRD_X
+        st.caption(("✓ Received in the final third, so this run **counts** toward Run Value / 90."
+                    if in_f3 else
+                    "⌀ Received outside the final third, so this run scores here but contributes "
+                    "**nothing** to Run Value / 90 — the headline metric is final-third only."))
+
+        st.metric("Pass + run together (ΔV)", f'{row["delta_V"]:+.3f}')
+        st.caption("A different quantity: `V(after) − V(before)` from the state model, crediting "
+                   "the pass and the run jointly. Bigger than the run's own credit, and not a "
+                   "substitute for it.")
+
         a, b = st.columns(2)
         a.metric("Distance", f'{row["run_distance"]:.1f} m')
         b.metric("Forward", f'{row["run_fwd"]:+.1f} m')
