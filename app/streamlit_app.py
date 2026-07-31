@@ -4,13 +4,16 @@ Valuing the run — off-ball movement from StatsBomb 360.
 One story, one dataset. Every page reads the pooled four-club-season run data.
 
   Off-ball runs   explorer / leaderboard / player runs / situational / validation
-  Player profile  percentile card + that player's run map and action maps
+  Player profile  percentile card + that player's run map, faded by category
   Teams           who generates run value, and from which phases
   Method          the model, the reconstruction, what breaks it, and what I
                   tried first (the reception null result)
 
 Run:  streamlit run app/streamlit_app.py    (from the project root)
 """
+# Implementation written by Claude Code under my direction, then reviewed and
+# corrected line by line. Design decisions, thresholds and validation are mine.
+# See AI_USAGE.md for the split of work and the errors I caught.
 from __future__ import annotations
 import sys, json
 from pathlib import Path

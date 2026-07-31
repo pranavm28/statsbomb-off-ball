@@ -23,6 +23,9 @@ SITUATIONAL (the part a coach actually asks about)
   and zone -- because "does he still make the run at 1-0 up?" is a real question
   and a player's profile is often state-dependent.
 """
+# Implementation written by Claude Code under my direction, then reviewed and
+# corrected line by line. Design decisions, thresholds and validation are mine.
+# See AI_USAGE.md for the split of work and the errors I caught.
 from __future__ import annotations
 import numpy as np
 import pandas as pd

@@ -4,9 +4,12 @@ Action table: one row per on-ball action, enriched with threat + 360 context.
 This is the single source the maps, the xPass model, and the metrics read. Each
 action records where it started/ended, whether it succeeded, its threat delta,
 and the 360 freeze-frame context: pressure on the ball, defenders bypassed
-(packing), space it was played into, and human-readable pressure/space LABELS
-used by the action maps.
+(packing), and the space it was played into. The pressure/space label columns
+were removed with the on-ball action maps they existed to colour.
 """
+# Implementation written by Claude Code under my direction, then reviewed and
+# corrected line by line. Design decisions, thresholds and validation are mine.
+# See AI_USAGE.md for the split of work and the errors I caught.
 from __future__ import annotations
 import numpy as np
 import pandas as pd

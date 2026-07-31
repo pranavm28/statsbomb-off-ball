@@ -5,11 +5,14 @@ Everything competition-specific lives here so the pipeline is portable:
 swap COMPETITION_ID / SEASON_ID and the whole build re-runs on another
 StatsBomb open-data competition that has 360 coverage.
 
-The project is a 360-native SPACE model. Three metrics hang off one engine:
-  1. Space Value   -- pitch control x threat (EPV) per player / team
-  2. Decision Index -- did the passer choose the highest-value option available?
-  3. Space Denial  -- how much dangerous space a defender/team removes (counterfactual)
+The project values OFF-BALL RUNS reconstructed from paired 360 freeze-frames.
+An earlier space model (pitch control x threat) was built, returned a null result,
+and was dropped as the headline; its surfaces survive only as context features.
+See AI_USAGE.md steps 4-5 for why the project changed shape.
 """
+# Implementation written by Claude Code under my direction, then reviewed and
+# corrected line by line. Design decisions, thresholds and validation are mine.
+# See AI_USAGE.md for the split of work and the errors I caught.
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
@@ -18,10 +21,10 @@ from pathlib import Path
 # THE FOUR CLUB SEASONS IN STATSBOMB'S OPEN 360 DATA.
 #
 # There is no full league season with 360 in the open data -- every "league"
-# release is a single club's season. Pooling all four gives 127 matches and,
-# critically for a MOVEMENT metric, 26-93 matches per player (Messi appears in
-# three of them). A tournament gives at most 7. Depth per player is what an
-# off-ball running metric needs, so we pool.
+# release is a single club's season. Pooling all four gives 123 matches and,
+# critically for a MOVEMENT metric, 11-93 matches per qualified player (Messi
+# appears in 93, across three of them). A tournament gives at most 7. Depth per
+# player is what an off-ball running metric needs, so we pool.
 #
 # Trade-off, stated in the write-up: four different leagues/eras, each a single
 # strong team, so players are compared across tactical systems and opponent

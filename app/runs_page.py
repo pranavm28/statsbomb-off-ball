@@ -5,6 +5,9 @@ validation of whether run features add anything over context.
 Kept in its own module so the main app file stays readable and every function
 here is small enough to talk through line-by-line in a walkthrough.
 """
+# Implementation written by Claude Code under my direction, then reviewed and
+# corrected line by line. Design decisions, thresholds and validation are mine.
+# See AI_USAGE.md for the split of work and the errors I caught.
 from __future__ import annotations
 import numpy as np
 import pandas as pd

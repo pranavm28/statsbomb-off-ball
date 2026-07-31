@@ -8,6 +8,9 @@ The heavy step is pulling events + 360 frames for every match. It is cached to
 data/raw/*.parquet so it only happens once. `load_all()` is the single entry
 point used by the build pipeline.
 """
+# Implementation written by Claude Code under my direction, then reviewed and
+# corrected line by line. Design decisions, thresholds and validation are mine.
+# See AI_USAGE.md for the split of work and the errors I caught.
 from __future__ import annotations
 import warnings
 import numpy as np

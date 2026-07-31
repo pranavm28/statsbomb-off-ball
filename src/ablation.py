@@ -26,6 +26,9 @@ information contribute?", which is what this module measures.
 Each tier is fitted on identical rows and identical match-grouped folds, so the
 increments are comparable.
 """
+# Implementation written by Claude Code under my direction, then reviewed and
+# corrected line by line. Design decisions, thresholds and validation are mine.
+# See AI_USAGE.md for the split of work and the errors I caught.
 from __future__ import annotations
 import numpy as np
 import pandas as pd

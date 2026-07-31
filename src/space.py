@@ -17,6 +17,9 @@ velocity. (Fernandez & Bornn, "Wide Open Spaces"; Spearman pitch control.)
 EPV = control_att(x) * threat(x). Summed over the pitch it is the amount of
 *dangerous space a team controls* -- the scalar the metrics are built on.
 """
+# Implementation written by Claude Code under my direction, then reviewed and
+# corrected line by line. Design decisions, thresholds and validation are mine.
+# See AI_USAGE.md for the split of work and the errors I caught.
 from __future__ import annotations
 import numpy as np
 

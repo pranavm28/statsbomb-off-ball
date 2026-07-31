@@ -14,6 +14,9 @@ Stages
   6  attach time-window outcomes (retention, loss, value lost, xG)
   7  aggregate player + team metrics
 """
+# Implementation written by Claude Code under my direction, then reviewed and
+# corrected line by line. Design decisions, thresholds and validation are mine.
+# See AI_USAGE.md for the split of work and the errors I caught.
 from __future__ import annotations
 import argparse, json, time
 import numpy as np

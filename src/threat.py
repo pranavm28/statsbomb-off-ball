@@ -9,6 +9,9 @@ surface is multiplied against to get Expected Possession Value (EPV).
 Exposes both the coarse grid and a fast lookup on any (x, y) or a full fine grid,
 so EPV can be evaluated on the same resolution as pitch control.
 """
+# Implementation written by Claude Code under my direction, then reviewed and
+# corrected line by line. Design decisions, thresholds and validation are mine.
+# See AI_USAGE.md for the split of work and the errors I caught.
 from __future__ import annotations
 import numpy as np
 import pandas as pd

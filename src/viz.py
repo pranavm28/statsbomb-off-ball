@@ -184,38 +184,6 @@ def surface(ax, gx, gy, surf, cmap="magma", alpha=0.72, levels=16):
     ax.contourf(gx, gy, surf, levels=levels, cmap=cmap, alpha=alpha, zorder=1)
 
 
-def decomposition(mates, defs, threat_grid, ball, spacemod, nx, ny):
-    """
-    Three linked panels that EXPLAIN the space model instead of asserting it:
-        pitch control   ×   threat   =   EPV
-    A viewer sees that space value is "space you control" times "danger it carries".
-    """
-    pts, gx, gy, _ = spacemod.make_grid(nx, ny)
-    epv, ctrl, thr = spacemod.epv_surface(pts, mates, defs, threat_grid)
-    panels = [("1. Pitch control", ctrl, "coolwarm", "who would win the ball here"),
-              ("2. Threat", thr, "viridis", "how dangerous this spot is"),
-              ("3. EPV = control × threat", epv, "magma", "dangerous space you own")]
-
-    fig, axes = plt.subplots(1, 3, figsize=(16.5, 4.1))
-    fig.set_facecolor(BG)
-    for ax, (name, surf, cmap, sub) in zip(axes, panels):
-        ax.set_facecolor(BG)
-        p = Pitch(pitch_type="statsbomb", pitch_color=BG, line_color=PITCH_LINE,
-                  linewidth=1.0, line_zorder=3)
-        p.draw(ax=ax)
-        ax.contourf(gx, gy, surf.reshape(gx.shape), levels=16, cmap=cmap, alpha=.78, zorder=1)
-        if defs is not None and len(defs):
-            p.scatter(defs[:, 0], defs[:, 1], ax=ax, s=64, color=DEF, edgecolors="#1a0f0f", lw=.6, zorder=5)
-        if mates is not None and len(mates):
-            p.scatter(mates[:, 0], mates[:, 1], ax=ax, s=64, color=ATK, edgecolors="#12102a", lw=.6, zorder=5)
-        if ball is not None:
-            p.scatter([ball[0]], [ball[1]], ax=ax, s=52, color=BALL, edgecolors="#5a4a00", lw=.6, zorder=7)
-        ax.set_title(name, color=TEXT, fontsize=13, fontweight="bold", family=FONT_STACK, pad=8)
-        ax.text(60, 88, sub, color=MUTED, fontsize=10.5, family=FONT_STACK, ha="center")
-    fig.subplots_adjust(left=.01, right=.99, top=.88, bottom=.02, wspace=.06)
-    return fig
-
-
 def option_overlay(pitch, ax, origin, options, chosen=None, best=None):
     """
     Every teammate as a passing OPTION, drawn as a comet whose width and colour

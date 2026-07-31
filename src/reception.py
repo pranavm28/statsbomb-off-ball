@@ -40,6 +40,9 @@ A player's metric is then the sum of value ABOVE EXPECTATION -- crediting the
 receiver for getting into positions that beat what a league-average reception in
 that location would be worth (this removes the pure volume/possession effect).
 """
+# Implementation written by Claude Code under my direction, then reviewed and
+# corrected line by line. Design decisions, thresholds and validation are mine.
+# See AI_USAGE.md for the split of work and the errors I caught.
 from __future__ import annotations
 import numpy as np
 import pandas as pd
