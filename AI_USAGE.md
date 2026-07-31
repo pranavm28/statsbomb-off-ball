@@ -17,7 +17,7 @@ is written so a reader can see exactly where the thinking came from.
 | Metric design | Every definition, every threshold, every restriction | Implemented them |
 | Validation design | Ablation on identical rows/folds; report nulls | Wrote the CV code, ran it |
 | Visual grammar | My existing published style (comets / dotted) | Implemented against it |
-| One real technical find | — | Spotted that the Ball Receipt event carries **its own** freeze-frame |
+| Run reconstruction | Framed the problem so that pairing the two frames *became* the method, and specified the release/receipt overlay that plots it | Spotted that the Ball Receipt event carries **its own** freeze-frame |
 | Code volume | Reviewed and directed | Wrote most of it |
 
 **Short version:** I decided *what* to build and *how it would be judged*. The assistant
@@ -74,7 +74,12 @@ Each step: **my call → what came back → what I changed.**
   run gets nothing.** The question scouts ask most, and the one question that genuinely
   needs 360, because you have to see a player who is not on the ball.
 - **My reasoning from the null:** if 360 adds nothing to valuing a reception, its value has
-  to be where event data is blind.
+  to be where event data is blind. Event data logs the pass and the receipt; what it never
+  logs is the movement in between. That is the gap 360 can close, and it is why the project
+  is a *value model on runs* rather than another descriptive layer on the ball.
+- **What that framing determined:** the unit had to be the run, the run had to be recovered
+  from the two frames that bracket a pass, and the metric had to be fitted against an
+  observed outcome. Everything downstream follows from that decision.
 - **My second call:** a tournament gives 3–7 matches per player — far too thin for a
   movement metric. Asked for league data.
 - **Where I was wrong, and it was caught:** StatsBomb's open "Bundesliga 2023/24" is not a
@@ -243,10 +248,13 @@ Being fair about this — some of its suggestions were good and I took them as t
   strong interactions, non-linear thresholds, native missing-value handling, no scaling
   needed, and fast enough that ablation became cheap. I verified the parameters do what the
   documentation says before keeping them.
-- **The Ball Receipt freeze-frame pairing.** The genuinely useful unprompted technical find,
-  and the thing the whole reconstruction depends on. I checked it against the raw data
-  before building on it — 80% of Ball Receipt events carry their own frame (checked on the
-  Bundesliga sample), and the receiver is tagged as the actor.
+- **The Ball Receipt freeze-frame pairing.** The genuinely useful unprompted technical find:
+  the receipt event carries its own frame with the receiver tagged as the actor. What it was
+  *for* was already set — I had specified reconstructing off-ball runs from the frames either
+  side of a pass — so this told me the receiver could be identified by name rather than
+  inferred at both ends, which is what made the reconstruction tractable. I checked it
+  against the raw data before building on it: 80% of Ball Receipt events carry their own
+  frame (Bundesliga sample), and the receiver is tagged as the actor.
 - **GroupKFold, out-of-fold reporting.** Standard and correct for nested data. I verified the
   grouping was on match, not possession.
 - **The literature survey.** Pitch control, EPV, xPass 360, support-creation research —
