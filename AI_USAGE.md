@@ -258,36 +258,18 @@ Being fair about this — some of its suggestions were good and I took them as t
 
 ## 6. Representative prompts
 
-Reproduced as sent. Most are rejections or challenges rather than requests.
+Trimmed for length and paired with what each one changed. Almost all are rejections,
+challenges or specifications rather than requests for code.
 
-> *"I don't really like the simplistic approach here. Maybe we can look to analyse some
-> specific situation using 360 data? I want the concept to be a football concept while also
-> having the technical stuff. Consolidate 10 ideas that leverage 360's uniqueness, is an
-> actual MODELLED metric, and can be applied for teams and players."*
-
-> *"What are we modelling exactly with our SpaceVal? What is the modelling part? What value
-> is it adding, from both a modelling and football POV?"*
-
-> *"In this approach, what is the actual possession value modelling that we have done? Are
-> we modelling the xT? Or is this a wrong approach?"*
-
-> *"Shots within 5s, retention over the next 10 seconds, possessions lost (value) as well as
-> possession value lost within the next 5s, runs made in counter-attacking context, xT added
-> from runs, maybe xG added at the end of runs."*
-
-> *"My idea revolves around off-ball running, receiving them, using the possession-value
-> approach to model these runs, add some situational analysis as we progress. I would also
-> recommend using data which is not WC 2022 as the sample is lesser."*
-
-> *"The plotting looks wrong as a run is from outside, diagnose this. StatsBomb coordinates
-> are already 120x80 if I am not wrong, so this needs to be fixed."*
-
-> *"Is an increase of 0.0071 AUC a good thing in actual modelling? What would we be computing
-> without 360? I don't understand what we would be and not be doing without 360 because we
-> can ONLY do this with 360, right?"*
-
-> *"What exactly does the value added part really measure? Is it like xT? Is it just a
-> glorified way of saying probability of scoring within 5s?"*
+| What I sent | What it changed |
+|---|---|
+| *"I don't really like the simplistic approach here. Consolidate 10 ideas that leverage 360's uniqueness, is an actual MODELLED metric, and can be applied for teams and players."* | Rejected the first build outright. Forced a fitted model rather than a weighted descriptive index. |
+| *"My idea revolves around off-ball running, receiving them, using the possession-value approach to model these runs. I would also recommend using data which is not WC 2022 as the sample is lesser."* | The core concept of the project, and the decision to pool four club seasons instead of a tournament. |
+| *"What are we modelling exactly with our SpaceVal? What is the modelling part? What value is it adding, from both a modelling and football POV?"* | Killed the space metric. It was an unfitted heuristic wearing a model's vocabulary. |
+| *"Shots within 5s, retention over the next 10 seconds, possession value lost within 5s, runs made in counter-attacking context, xT added from runs, xG added at the end of runs."* | Specified the outcome set the runs are scored against, rather than accepting a single convenient target. |
+| *"The plotting looks wrong as a run is from outside, diagnose this. StatsBomb coordinates are already 120x80 if I am not wrong."* | Found that StatsBomb clamps event coordinates but **not** freeze-frames — raw y reached −7.8, so runs were being drawn off the pitch. |
+| *"Is an increase of 0.0071 AUC actually good? What would we be computing without 360?"* | The most valuable question I asked. It exposed that the "without 360" baseline already contained a 360 feature. Replaced with the four-tier ablation; the true contribution is **+0.0212**, not +0.0071. |
+| *"What exactly does the value added part really measure? Is it like xT? Is it just a glorified way of saying probability of scoring within 5s?"* | Forced the metric to be defined properly as an information gain, and surfaced the target-sensitivity limitation that is now reported rather than buried. |
 
 ---
 
