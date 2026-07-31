@@ -78,7 +78,8 @@ Each step: **my call → what came back → what I changed.**
 - **My second call:** a tournament gives 3–7 matches per player — far too thin for a
   movement metric. Asked for league data.
 - **Where I was wrong, and it was caught:** StatsBomb's open "Bundesliga 2023/24" is not a
-  league season — it is Leverkusen's 34 matches, other clubs appearing only twice each. My
+  league season — it is Leverkusen's 34-match release, other clubs appearing only twice
+  each (31 of those matches survive the build and are used here). My
   premise was wrong; my instinct was right for a better reason (34 matches *per player*
   beats seven), so we kept the switch and reframed it honestly.
 
@@ -110,6 +111,9 @@ run value = ΔV = V(after) − V(before)
 - **Why this frame:** it is the assessment's own language (value on states, and on the
   actions that move between them), and it makes the 360 contribution *testable* — V can be
   fitted twice, with and without the freeze-frame features.
+- **Superseded later, deliberately:** plain ΔV is joint with the pass, so it did not survive
+  as the headline (Step 14). The shipped metric is the *ablation difference* on a separate
+  run model with a progression target. This block is the Step 7 design, not the final one.
 - **What survived from the old version:** the xT delta, kept as a plain-language companion
   and clearly labelled descriptive, not as the model.
 
@@ -117,8 +121,12 @@ run value = ΔV = V(after) − V(before)
 
 - **My list:** shots within 5s, retention over 10s, possessions lost **and possession value
   lost** within 5s, counter-attacking context, xT added, xG added at the end of runs.
-- **My call on the clock:** **seconds, not "next N actions"** — five short passes take three
-  seconds, five duels take thirty.
+- **My call on the clock:** the descriptive outcomes are in **seconds, not "next N actions"**
+  — five short passes take three seconds, five duels take thirty, so actions are a poor
+  clock for elapsed danger. **One deliberate exception:** the *progression* label the run
+  model is judged on counts the next **5 actions**, because progression is a property of the
+  possession's sequence of touches rather than of elapsed time. Both clocks are in the code
+  on purpose, and the write-up says so.
 - **My call on losses:** value the loss by the threat of *where* it happened. Losing it on
   halfway is not the same event as losing it with your full-backs sixty yards up.
 
@@ -135,8 +143,9 @@ run value = ΔV = V(after) − V(before)
   professionals actually do?
 - **What it produced:** the honest framing now in the write-up — the *concept* is mainstream
   (SkillCorner sells off-ball run products), the *method* is unusual because professionals
-  use tracking data, so this is the best available approximation from freeze-frames, with
-  the missing 20% named.
+  use tracking data, so this is the best available approximation from freeze-frames. What
+  the frames cannot give me is named explicitly: no velocities, no acceleration, and only
+  runs that actually received the ball.
 
 ### Step 11 — Caught a mislabelled baseline
 
@@ -213,7 +222,7 @@ reasonable and was wrong.
 | 4 | Stale minutes cache from a partial run | A full build reported nine qualified players | Partial runs no longer write the cache |
 | 5 | Baseline and treatment compared on different populations | The reported "lift" was negative and made no sense | Rebuilt on identical rows and folds |
 | 6 | Players who changed club counted twice | I asked why Messi ranked so low | Grouping was on player-and-team while minutes were pooled — halved every transferred player's per-90 |
-| 7 | ΔV credited to the runner is joint with the passer | Busquets — who does not make off-ball runs — appeared 10th | Diagnosed by correlation (+0.136 ball vs +0.146 player); headline switched to the isolated contribution |
+| 7 | ΔV credited to the runner is joint with the passer | Busquets — who does not make off-ball runs — appeared 10th | Diagnosed by correlation (+0.134 ball vs +0.147 player across all runs; inside the final third the ball term overtakes at +0.241 vs +0.217); headline switched to the isolated contribution |
 | 8 | Run value rewarded prediction, not merit | Tapsoba — 754 runs, mean reception on halfway, mean forward component −1.1 m — scored near Wirtz | Headline restricted to final-third runs; cut chosen by testing three alternatives |
 | 9 | Runs drawn starting outside the pitch | I spotted it on a player map | StatsBomb clamps event locations but **not** freeze-frame positions; raw frames reach y = −7.8 |
 | 10 | Accented characters rendering as boxes | I spotted it on the visuals | Display face lacks c-acute and c-caron; fixed with a per-glyph font fallback |
@@ -236,8 +245,8 @@ Being fair about this — some of its suggestions were good and I took them as t
   documentation says before keeping them.
 - **The Ball Receipt freeze-frame pairing.** The genuinely useful unprompted technical find,
   and the thing the whole reconstruction depends on. I checked it against the raw data
-  before building on it — 86% of receipts carry their own frame, and the receiver is tagged
-  as the actor.
+  before building on it — 80% of Ball Receipt events carry their own frame (checked on the
+  Bundesliga sample), and the receiver is tagged as the actor.
 - **GroupKFold, out-of-fold reporting.** Standard and correct for nested data. I verified the
   grouping was on match, not possession.
 - **The literature survey.** Pitch control, EPV, xPass 360, support-creation research —
@@ -249,7 +258,8 @@ Being fair about this — some of its suggestions were good and I took them as t
 - The heuristic space metric — only the threat layer was fitted; it predicted no outcome.
 - Leading with the xT delta — arithmetic on a grid, not a model.
 - Copying my own y-flip convention — different coordinate system.
-- Action-based windows — replaced with seconds.
+- Action-based windows for the *descriptive outcomes* — replaced with seconds. The
+  progression label still counts actions, deliberately.
 - ΔV as the headline — joint with the pass.
 - Three of the four compactness features — near-zero contribution.
 - "Runs are worth more against a stretched defence" — the data says the opposite.
