@@ -63,6 +63,23 @@ def run_map(runs_p: pd.DataFrame, colour_by="in_behind", title=None, emphasise=F
     return fig
 
 
+# Display surnames. Taking the last token is wrong for Iberian and Brazilian naming:
+# "Kylian Mbappe Lottin" -> "Lottin", "Neymar da Silva Santos Junior" -> "Junior".
+_SURNAMES = [("Mbapp", "Mbappé"), ("Neymar", "Neymar"), ("Braithwaite", "Braithwaite"),
+             ("Trinc", "Trincão"), ("Messi", "Messi"), ("Alba", "Jordi Alba"),
+             ("Boniface", "Boniface"), ("Wirtz", "Wirtz"), ("Dembélé", "Dembélé"),
+             ("Hakimi", "Hakimi"), ("Frimpong", "Frimpong"), ("Ekitike", "Ekitike")]
+
+
+def _surname(name: str) -> str:
+    if not isinstance(name, str):
+        return "?"
+    for needle, disp in _SURNAMES:
+        if needle in name:
+            return disp
+    return name.split()[-1] if name.split() else name
+
+
 def _frame_players(fr, event_id):
     """Teammate and opponent coordinates for one freeze-frame."""
     f = fr[fr["id"] == event_id]
@@ -120,16 +137,21 @@ def _run_explorer(runs: pd.DataFrame):
 
     r = runs[(runs["usable"] == 1) & (runs["is_run"] == 1)].copy()
     c1, c2, c3 = st.columns(3)
-    rank_by = c1.selectbox("Find runs by", ["delta_V", "run_xt", "xg_5s", "run_distance"],
-                           format_func=lambda x: {"delta_V": "Possession value added (ΔV)",
+    # Run Value first: it is the metric the leaderboard is built from, so it should
+    # be the default way of finding runs to look at.
+    rank_by = c1.selectbox("Find runs by",
+                           ["run_value_added", "delta_V", "run_xt", "xg_5s", "run_distance"],
+                           format_func=lambda x: {"run_value_added": "Run Value (this run)",
+                                                  "delta_V": "Pass + run together (ΔV)",
                                                   "run_xt": "Threat added (xT)",
                                                   "xg_5s": "xG in the next 5s",
                                                   "run_distance": "Run distance"}[x])
     ph = c2.selectbox("Phase", ["All", "Counter", "Open play", "Set piece / other"])
     who = c3.selectbox("Player", ["All"] + sorted(r["runner"].dropna().unique().tolist()))
-    st.caption("ΔV here is the pass-and-run value of this single moment — for one run "
-               "that joint reading is the interesting one; for ranking players use "
-               "Run Value on the Leaderboard tab.")
+    st.caption("**Run Value** is this run's own credit — how much the *manner* of the movement "
+               "raised the chance the possession progresses, over and above where he ran between. "
+               "It is the per-run number that sums into Run Value / 90 on the Leaderboard. "
+               "**ΔV** is a different quantity: the pass and the run valued together.")
 
     dctx = st.radio("Defensive context", ["All runs", "Received enclosed (encirclement ≥ 0.5)",
                                           "Received with a clear side (< 0.2)",
@@ -152,9 +174,15 @@ def _run_explorer(runs: pd.DataFrame):
         st.warning("No runs available for that filter."); return
 
     top = top.copy()
-    top["label"] = (top["runner"].str.split().str[-1] + "  ·  " + top["team"]
+    # Label with the metric actually being sorted on, not always dV -- otherwise the
+    # list looks unsorted. Surnames come from a lookup rather than the last token:
+    # "Kylian Mbappe Lottin" would otherwise display as "Lottin".
+    metric_label = {"run_value_added": "Run Value", "delta_V": "ΔV", "run_xt": "xT",
+                    "xg_5s": "xG 5s", "run_distance": "dist"}[rank_by]
+    fmt = "{:.1f} m" if rank_by == "run_distance" else "{:+.3f}"
+    top["label"] = (top["runner"].map(_surname) + "  ·  " + top["team"]
                     + "  ·  " + top["minute"].astype(int).astype(str) + "'"
-                    + "  ·  ΔV " + top["delta_V"].round(3).astype(str))
+                    + f"  ·  {metric_label} " + top[rank_by].map(fmt.format))
     pick = st.selectbox("Run", top["label"].tolist())
     row = top[top["label"] == pick].iloc[0]
 
