@@ -258,18 +258,19 @@ Being fair about this — some of its suggestions were good and I took them as t
 
 ## 6. Representative prompts
 
-Trimmed for length and paired with what each one changed. Almost all are rejections,
-challenges or specifications rather than requests for code.
+The seven that actually shaped the project, condensed from longer messages. The
+substance and the challenge in each is as sent. Almost none are requests for code —
+they are rejections, specifications, or demands that something be justified.
 
 | What I sent | What it changed |
 |---|---|
-| *"I don't really like the simplistic approach here. Consolidate 10 ideas that leverage 360's uniqueness, is an actual MODELLED metric, and can be applied for teams and players."* | Rejected the first build outright. Forced a fitted model rather than a weighted descriptive index. |
-| *"My idea revolves around off-ball running, receiving them, using the possession-value approach to model these runs. I would also recommend using data which is not WC 2022 as the sample is lesser."* | The core concept of the project, and the decision to pool four club seasons instead of a tournament. |
-| *"What are we modelling exactly with our SpaceVal? What is the modelling part? What value is it adding, from both a modelling and football POV?"* | Killed the space metric. It was an unfitted heuristic wearing a model's vocabulary. |
-| *"Shots within 5s, retention over the next 10 seconds, possession value lost within 5s, runs made in counter-attacking context, xT added from runs, xG added at the end of runs."* | Specified the outcome set the runs are scored against, rather than accepting a single convenient target. |
-| *"The plotting looks wrong as a run is from outside, diagnose this. StatsBomb coordinates are already 120x80 if I am not wrong."* | Found that StatsBomb clamps event coordinates but **not** freeze-frames — raw y reached −7.8, so runs were being drawn off the pitch. |
-| *"Is an increase of 0.0071 AUC actually good? What would we be computing without 360?"* | The most valuable question I asked. It exposed that the "without 360" baseline already contained a 360 feature. Replaced with the four-tier ablation; the true contribution is **+0.0212**, not +0.0071. |
-| *"What exactly does the value added part really measure? Is it like xT? Is it just a glorified way of saying probability of scoring within 5s?"* | Forced the metric to be defined properly as an information gain, and surfaced the target-sensitivity limitation that is now reported rather than buried. |
+| *"I don't like this simplistic approach. Consolidate ten ideas that leverage what is unique about 360, where the output is an actual modelled metric rather than a weighted index, and that works for both teams and players."* | Rejected the first build outright and set the bar for everything after: a fitted model, not a descriptive index. |
+| *"My idea is off-ball running — reconstruct the runs, value them with the possession-value approach, then layer situational analysis on top. And use something other than WC 2022, the sample is too small; a full league season would be better."* | The project. Both the core concept and the decision to pool four club seasons rather than a tournament. |
+| *"What exactly are we modelling with SpaceVal? Where is the modelling part, and what is it adding from a modelling and a football point of view?"* | Killed the space metric. It was an unfitted heuristic wearing a model's vocabulary, and it did not survive the question. |
+| *"Can we make this defensive-structure aware — a compactness factor? Distance to the nearest defender cannot tell one marker apart from three converging."* | Added the defensive geometry block: encirclement, block spread, second-nearest defender. Reported both ways — null in Model A (+0.0006), a real gain in Model B. |
+| *"The plotting is wrong, a run starts from outside the pitch. Diagnose it — StatsBomb coordinates are already 120x80."* | Found that StatsBomb clamps event coordinates but **not** freeze-frames; raw y reached −7.8, so runs were being drawn off the pitch. |
+| *"Is an increase of 0.0071 AUC actually good in modelling terms? And what would we be computing without 360?"* | The most consequential question I asked. It exposed that the "without 360" baseline already contained a 360 feature. Replaced with the four-tier ablation: the true contribution is **+0.0212**, not +0.0071. |
+| *"What does 'value added' really mean here? Is it xT? Or just a glorified way of saying probability of a shot within 5s?"* | Forced the metric to be defined properly as an information gain, and surfaced the target-sensitivity limitation that is now reported rather than buried. |
 
 ---
 
