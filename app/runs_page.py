@@ -160,6 +160,14 @@ def _run_explorer(runs: pd.DataFrame):
                                           "Received with a clear side (< 0.2)",
                                           "Into a crowd (3+ defenders within 10 m)"],
                     horizontal=True)
+    # Composes with the radio above rather than replacing it, so "final third +
+    # enclosed" is expressible. Off by default so the explorer still shows every
+    # run; on, it restricts to the receptions that actually feed Run Value / 90 --
+    # the honest view for a leaderboard question, and it drops the deep outliers
+    # (a slow backwards run into midfield space can top the raw list but counts
+    # nothing toward the metric).
+    f3_only = st.checkbox("Received in the final third only  —  the runs that count toward "
+                          "Run Value / 90", value=False)
     if ph != "All":
         r = r[r["phase"] == ph]
     if dctx.startswith("Received enclosed"):
@@ -168,6 +176,8 @@ def _run_explorer(runs: pd.DataFrame):
         r = r[r["encirclement"] < 0.2]
     elif dctx.startswith("Into a crowd"):
         r = r[r["def_within_10"] >= 3]
+    if f3_only:
+        r = r[r["receipt_x"] >= config.FINAL_THIRD_X]
     if who != "All":
         r = r[r["runner"] == who]
     if rank_by not in r.columns or r[rank_by].notna().sum() == 0:
